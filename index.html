@@ -519,10 +519,8 @@ function renderVehicles(){
     const s=STATUSES[v.status];
     return `<div class="card" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><input class="prio-input" type="number" min="1" max="${fullOrdered.length}" data-prio="${v.id}" value="${prioOf(v.id)}" title="Priorita"> ${esc(v.model)||'—'}</div>
+        <div class="model"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><input class="prio-input" type="text" inputmode="numeric" data-prio="${v.id}" value="${prioOf(v.id)}" title="Priorita – prepíš číslo"> ${esc(v.model)||'—'}</div>
         <div class="iconbtns">
-          <button class="iconbtn" data-up="${v.id}" title="Vyššia priorita">▲</button>
-          <button class="iconbtn" data-down="${v.id}" title="Nižšia priorita">▼</button>
           <button class="iconbtn" data-edit="${v.id}">✎</button>
           <button class="iconbtn" data-del="${v.id}">🗑</button>
         </div>
@@ -546,8 +544,6 @@ function renderVehicles(){
 
   $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ state.vehicles=state.vehicles.filter(v=>v.id!==b.dataset.del); await persist(); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
-  $('vehList').querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',()=>moveVehicle(b.dataset.up,-1)));
-  $('vehList').querySelectorAll('[data-down]').forEach(b=>b.addEventListener('click',()=>moveVehicle(b.dataset.down,1)));
   $('vehList').querySelectorAll('[data-prio]').forEach(inp=>inp.addEventListener('change',()=>moveVehicleTo(inp.dataset.prio, parseInt(inp.value,10))));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
@@ -565,14 +561,6 @@ function ensureVehicleOrder(){
       .forEach((v,i)=>{ v.order=i; });
   }
 }
-function moveVehicle(id, dir){
-  const sorted=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
-  const i=sorted.findIndex(v=>v.id===id); const j=i+dir;
-  if(i<0||j<0||j>=sorted.length) return;
-  [sorted[i],sorted[j]]=[sorted[j],sorted[i]];
-  sorted.forEach((v,k)=>v.order=k);
-  persist().then(renderVehicles);
-}
 function moveVehicleTo(id, pos){
   const sorted=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
   const from=sorted.findIndex(v=>v.id===id); if(from<0) return;
@@ -584,12 +572,15 @@ function moveVehicleTo(id, pos){
   persist().then(renderVehicles);
 }
 async function onVehicleDrop(){
-  const sorted=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
-  const shownIds=[...document.querySelectorAll('#vehSort > .card')].map(el=>el.dataset.id);
-  const shownSet=new Set(shownIds); let si=0;
-  const newOrder=sorted.map(v=> shownSet.has(v.id) ? state.vehicles.find(x=>x.id===shownIds[si++]) : v);
-  newOrder.forEach((v,k)=>{ v.order=k; });
-  await persist(); renderVehicles();
+  try{
+    const shownIds=[...document.querySelectorAll('#vehSort > .card')].map(el=>el.dataset.id).filter(Boolean);
+    const sorted=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
+    const shownSet=new Set(shownIds); let si=0;
+    const newOrder=sorted.map(v=> shownSet.has(v.id) ? state.vehicles.find(x=>x.id===shownIds[si++]) : v).filter(Boolean);
+    newOrder.forEach((v,k)=>{ v.order=k; });
+    await persist();
+  }catch(e){}
+  renderVehicles();
 }
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===name));
@@ -1021,9 +1012,9 @@ async function bootData(){
   try{ saved=await withTimeout(Store.load(),12000,'Načítanie dát'); }catch(e){ saved=null; }
   applyState(saved); renderAll();
   if(CLOUD && accessToken) startPolling();
-  $('footer').textContent = (CLOUD && accessToken)
+  $('footer').textContent = ((CLOUD && accessToken)
     ? 'Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'
-    : 'Dáta sa ukladajú lokálne v tomto prehliadači.';
+    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v9';
 }
 function showLogin(show){ $('loginOverlay').classList.toggle('hidden', !show); }
 async function doLogin(){
