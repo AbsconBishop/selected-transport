@@ -209,7 +209,7 @@ select.in{cursor:pointer;}
     <div class="stat"><span class="stat-num" id="stAktualne">0</span><span class="stat-lbl">aktuálne</span></div>
     <div class="stat"><span class="stat-num" id="stTyzdne">0</span><span class="stat-lbl">o 1–2 tý.</span></div>
     <div class="stat"><span class="stat-num" id="stVodici">0</span><span class="stat-lbl">vodičov</span></div>
-    <button class="btn btn-ghost" id="notifyBtn" style="padding:7px 12px; align-self:center" title="Oznámenia na mobil">🔔</button>
+    <button class="btn btn-ghost hidden" id="notifyBtn" style="padding:7px 12px; align-self:center" title="Oznámenia na mobil">🔔</button>
     <button class="btn btn-ghost hidden" id="logoutBtn" style="padding:7px 12px; align-self:center">Odhlásiť</button>
   </div>
 </header>
@@ -407,6 +407,7 @@ async function notify(title, message){
   }catch(e){}
 }
 function openNotify(){
+  if(CLOUD && !accessToken) return;   // dostupné len po prihlásení
   const n=getNotify();
   if(!n.topic) n.topic='selected-transport-'+Math.random().toString(36).slice(2,8);
   $('ntfyTopic').value=n.topic;
@@ -936,6 +937,7 @@ function renderRoutes(){
 /* ---------------- init ---------------- */
 function withTimeout(p,ms,label){ return Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error((label||'Operácia')+' trvá príliš dlho')),ms))]); }
 async function bootData(){
+  $('notifyBtn').classList.remove('hidden');
   let saved=null;
   try{ saved=await withTimeout(Store.load(),12000,'Načítanie dát'); }catch(e){ saved=null; }
   applyState(saved); renderAll();
