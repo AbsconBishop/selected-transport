@@ -301,7 +301,7 @@ select.in{cursor:pointer;}
           <button class="btn btn-ghost" id="cAddStop" style="margin-top:6px; padding:7px 14px">+ Pridať zastávku</button></div>
         <div class="field"><label class="label">Vzdialenosť (km)</label><input class="in" id="cDist" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Sadzba (€/km)</label>
-          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="text" inputmode="decimal" placeholder="napr. 0,45"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px" title="Uložiť ako predvolenú">✓</button></div></div>
+          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="text" inputmode="decimal" placeholder="napr. 0,45" style="flex:1; min-width:0"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px; flex:0 0 auto" title="Uložiť ako predvolenú">✓</button></div></div>
         <div class="field"><label class="label">Marža (%)</label><input class="in" id="cMpct" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Marža (€ fix)</label><input class="in" id="cMfix" type="number" placeholder="0"></div>
       </div>
@@ -1019,7 +1019,7 @@ async function bootData(){
   if(CLOUD && accessToken) startPolling();
   $('footer').textContent = ((CLOUD && accessToken)
     ? 'Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'
-    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v11';
+    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v12';
 }
 function showLogin(show){ $('loginOverlay').classList.toggle('hidden', !show); }
 async function doLogin(){
