@@ -77,7 +77,8 @@ select.in{cursor:pointer;}
 .model{font-family:'Fraunces',serif; font-size:17px; font-weight:600; display:flex; align-items:center; gap:8px;}
 .drag-handle{cursor:grab; color:var(--muted); font-weight:700; letter-spacing:-3px; font-size:15px; user-select:none; touch-action:none;}
 .drag-handle:active{cursor:grabbing;}
-.prio-badge{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border-radius:20px; padding:1px 8px;}
+.prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
+.prio-input::-webkit-outer-spin-button,.prio-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
 .drv-drop{min-height:60px;}
 .sortable-ghost{opacity:.35;}
 .sortable-chosen{box-shadow:0 6px 20px rgba(0,0,0,.18);}
@@ -290,7 +291,7 @@ select.in{cursor:pointer;}
           <button class="btn btn-ghost" id="cAddStop" style="margin-top:6px; padding:7px 14px">+ Pridať zastávku</button></div>
         <div class="field"><label class="label">Vzdialenosť (km)</label><input class="in" id="cDist" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Sadzba (€/km)</label>
-          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="number" step="0.01"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px" title="Uložiť ako predvolenú">✓</button></div></div>
+          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="text" inputmode="decimal" placeholder="napr. 0,45"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px" title="Uložiť ako predvolenú">✓</button></div></div>
         <div class="field"><label class="label">Marža (%)</label><input class="in" id="cMpct" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Marža (€ fix)</label><input class="in" id="cMfix" type="number" placeholder="0"></div>
       </div>
@@ -398,7 +399,7 @@ const Store = {
   }
 };
 
-let state = { drivers:[], vehicles:[], routes:[], settings:{ratePerKm:0.45} };
+let state = { drivers:[], vehicles:[], routes:[], settings:{} };
 let editVeh=null, editDrv=null;
 let vehFilter='all';
 
@@ -436,8 +437,9 @@ $('ntfyTest').addEventListener('click', async ()=>{
   await notify('SELECTED Transport','Testovacie oznámenie ✓');
   alert('Test odoslaný. Ak máš v appke ntfy prihlásený kanál „'+t+'", o chvíľu ti príde.');
 });
-function applyState(saved){ state={ drivers:(saved&&saved.drivers)||[], vehicles:(saved&&saved.vehicles)||[], routes:(saved&&saved.routes)||[], settings:(saved&&saved.settings)||{ratePerKm:0.45} }; }
-function renderAll(){ $('cRate').value=state.settings.ratePerKm ?? 0.45; refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); recompute(); }
+function applyState(saved){ state={ drivers:(saved&&saved.drivers)||[], vehicles:(saved&&saved.vehicles)||[], routes:(saved&&saved.routes)||[], settings:(saved&&saved.settings)||{} }; }
+function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); recompute(); }
+function readRate(){ return parseFloat(($('cRate').value||'').replace(',','.'))||0; }
 
 function editingNow(){ const a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='SELECT'||a.tagName==='TEXTAREA'); }
 function startPolling(){
@@ -511,11 +513,13 @@ function renderVehicles(){
   list = [...list].sort((a,b)=>(a.order??0)-(b.order??0));
   if(list.length===0){ $('vehList').innerHTML='<div class="empty">Zatiaľ žiadne vozidlá. Pridaj prvé hore.</div>'; return; }
   const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'—'; };
+  const fullOrdered=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
+  const prioOf=(id)=>fullOrdered.findIndex(v=>v.id===id)+1;
   $('vehList').innerHTML = '<div class="list" id="vehSort">'+list.map((v,idx)=>{
     const s=STATUSES[v.status];
     return `<div class="card" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><span class="prio-badge">#${idx+1}</span> ${esc(v.model)||'—'}</div>
+        <div class="model"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><input class="prio-input" type="number" min="1" max="${fullOrdered.length}" data-prio="${v.id}" value="${prioOf(v.id)}" title="Priorita"> ${esc(v.model)||'—'}</div>
         <div class="iconbtns">
           <button class="iconbtn" data-up="${v.id}" title="Vyššia priorita">▲</button>
           <button class="iconbtn" data-down="${v.id}" title="Nižšia priorita">▼</button>
@@ -544,6 +548,7 @@ function renderVehicles(){
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
   $('vehList').querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',()=>moveVehicle(b.dataset.up,-1)));
   $('vehList').querySelectorAll('[data-down]').forEach(b=>b.addEventListener('click',()=>moveVehicle(b.dataset.down,1)));
+  $('vehList').querySelectorAll('[data-prio]').forEach(inp=>inp.addEventListener('change',()=>moveVehicleTo(inp.dataset.prio, parseInt(inp.value,10))));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
@@ -565,6 +570,16 @@ function moveVehicle(id, dir){
   const i=sorted.findIndex(v=>v.id===id); const j=i+dir;
   if(i<0||j<0||j>=sorted.length) return;
   [sorted[i],sorted[j]]=[sorted[j],sorted[i]];
+  sorted.forEach((v,k)=>v.order=k);
+  persist().then(renderVehicles);
+}
+function moveVehicleTo(id, pos){
+  const sorted=[...state.vehicles].sort((a,b)=>(a.order??0)-(b.order??0));
+  const from=sorted.findIndex(v=>v.id===id); if(from<0) return;
+  if(!Number.isFinite(pos)) { renderVehicles(); return; }
+  let to=Math.max(0, Math.min(sorted.length-1, pos-1));
+  const [item]=sorted.splice(from,1);
+  sorted.splice(to,0,item);
   sorted.forEach((v,k)=>v.order=k);
   persist().then(renderVehicles);
 }
@@ -962,7 +977,7 @@ async function geocodeStop(i){
 
 function recompute(estimate){
   const dist=Number($('cDist').value)||0;
-  const rate=Number($('cRate').value)||0;
+  const rate=readRate();
   const cost=dist*rate;
   const margin=cost*((Number($('cMpct').value)||0)/100)+(Number($('cMfix').value)||0);
   const client=cost+margin;
@@ -970,11 +985,11 @@ function recompute(estimate){
   if(dist>0) $('rSub').textContent=`${kmF(dist)} km × ${eur(rate)}/km${estimate?'  ·  vzdialenosť je odhad (vzdušná × 1,3)':''}`;
 }
 ['cDist','cRate','cMpct','cMfix'].forEach(i=>$(i).addEventListener('input',()=>recompute()));
-$('cSaveRate').addEventListener('click', async ()=>{ state.settings.ratePerKm=Number($('cRate').value)||0; await persist(); });
+$('cSaveRate').addEventListener('click', async ()=>{ state.settings.ratePerKm=readRate(); await persist(); });
 
 $('cSave').addEventListener('click', async ()=>{
   const dist=Number($('cDist').value)||0; if(dist<=0) return;
-  const rate=Number($('cRate').value)||0; const cost=dist*rate;
+  const rate=readRate(); const cost=dist*rate;
   const margin=cost*((Number($('cMpct').value)||0)/100)+(Number($('cMfix').value)||0); const client=cost+margin;
   const labels = stops.map((s,i)=> s.label.trim() || (s.latlng?LETTER(i):'')).filter(Boolean);
   const label = labels.join(' → ') || 'Trasa';
