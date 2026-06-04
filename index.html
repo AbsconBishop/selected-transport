@@ -108,6 +108,7 @@ select.in{cursor:pointer;}
 .tag{border:1px solid var(--line); border-radius:20px; padding:3px 10px; font-size:11.5px; font-weight:600; color:var(--ink2);}
 .tag-solid{background:var(--ink); color:#fff; border-color:var(--ink);}
 .driver-line{font-size:12.5px; color:var(--muted); margin-top:10px;}
+.dates{font-size:12.5px; color:var(--ink2); margin-top:10px; font-weight:500;}
 .chk{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink2); cursor:pointer; padding:9px 0;}
 .chk input{width:16px; height:16px; accent-color:var(--ink); cursor:pointer;}
 .transit-toggle{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink2); cursor:pointer; margin-top:12px;}
@@ -260,6 +261,7 @@ select.in{cursor:pointer;}
         <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
         <div class="field"><label class="label">Vzdialenosť (km)</label><input class="in" id="vDist" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
+        <div class="field"><label class="label">Začiatok prepravy</label><input class="in" id="vStart" type="date"></div>
         <div class="field wide"><label class="label">Poznámka</label><input class="in" id="vNote" placeholder="Termín, kontakt, detaily…"></div>
       </div>
       <div class="actions">
@@ -493,8 +495,10 @@ function driverOptions(selected){
 }
 function refreshDriverSelect(){ $('vDriver').innerHTML = driverOptions($('vDriver').value); }
 
+function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d&&m&&y?`${d}.${m}.${y}`:iso; }
 function vehFormReset(){
-  ['vModel','vVin','vFrom','vTo','vDist','vNote'].forEach(i=>$(i).value='');
+  ['vModel','vVin','vFrom','vTo','vDist','vNote','vStart'].forEach(i=>$(i).value='');
   $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false;
   editVeh=null; $('vehFormTitle').textContent='Pridať vozidlo na odvoz';
   $('vSubmit').textContent='Pridať'; $('vCancel').classList.add('hidden');
@@ -503,7 +507,7 @@ $('vSubmit').addEventListener('click', async ()=>{
   const model=$('vModel').value.trim(); if(!model) return;
   const data={ model, vin:$('vVin').value, from:$('vFrom').value, to:$('vTo').value,
     status:$('vStatus').value, driverId:$('vDriver').value, distance:$('vDist').value, note:$('vNote').value,
-    inTransit:$('vInTransit').checked };
+    inTransit:$('vInTransit').checked, startDate:$('vStart').value };
   if(editVeh){ const i=state.vehicles.findIndex(v=>v.id===editVeh); if(i>-1) state.vehicles[i]={...state.vehicles[i],...data}; }
   else { state.vehicles.unshift({id:uid(),createdAt:Date.now(),priority:'high',order:-1,...data}); if(getNotify().onNewVehicle!==false) notify('Nové auto na odvoz', data.model + ((data.from||data.to)?(' · '+(data.from||'?')+' → '+(data.to||'?')):'')); }
   vehFormReset(); await persist(); renderVehicles();
@@ -544,6 +548,7 @@ function vehCard(v){
       </div>
       <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> Aktuálne v preprave</label>
       ${v.driverId?`<div class="driver-line">Priradený: <strong>${dName(v.driverId)}</strong></div>`:''}
+      ${(v.startDate||v.endDate)?`<div class="dates">🚚 ${v.startDate?fmtDate(v.startDate):'—'}${v.endDate?` &nbsp;→&nbsp; ✓ ${fmtDate(v.endDate)}`:''}</div>`:''}
       ${v.note?`<div class="note">📝 ${esc(v.note)}</div>`:''}
       ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">
         ${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}
@@ -571,11 +576,11 @@ function renderVehicles(){
 
   $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ state.vehicles=state.vehicles.filter(v=>v.id!==b.dataset.del); await persist(); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
-  $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
+  $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene' && !v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
-  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
-  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; await persist(); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; if(!v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); await persist(); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
     $('vehList').querySelectorAll('.veh-zone').forEach(z=>{
@@ -618,7 +623,7 @@ function startEditVeh(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
   $('vModel').value=v.model||''; $('vVin').value=v.vin||''; $('vFrom').value=v.from||''; $('vTo').value=v.to||'';
   $('vStatus').value=v.status||'aktualne'; refreshDriverSelect(); $('vDriver').value=v.driverId||'';
-  $('vDist').value=v.distance||''; $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit;
+  $('vDist').value=v.distance||''; $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||'';
   editVeh=id; $('vehFormTitle').textContent='Upraviť vozidlo'; $('vSubmit').textContent='Uložiť'; $('vCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1028,7 +1033,7 @@ async function bootData(){
   if(CLOUD && accessToken) startPolling();
   $('footer').textContent = ((CLOUD && accessToken)
     ? 'Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'
-    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v14';
+    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v15';
 }
 function showLogin(show){ $('loginOverlay').classList.toggle('hidden', !show); }
 async function doLogin(){
