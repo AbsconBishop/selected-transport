@@ -508,6 +508,7 @@ $('vSubmit').addEventListener('click', async ()=>{
   const data={ model, vin:$('vVin').value, from:$('vFrom').value, to:$('vTo').value,
     status:$('vStatus').value, driverId:$('vDriver').value, distance:$('vDist').value, note:$('vNote').value,
     inTransit:$('vInTransit').checked, startDate:$('vStart').value };
+  if(data.inTransit && !data.startDate) data.startDate=todayISO();
   if(editVeh){ const i=state.vehicles.findIndex(v=>v.id===editVeh); if(i>-1) state.vehicles[i]={...state.vehicles[i],...data}; }
   else { state.vehicles.unshift({id:uid(),createdAt:Date.now(),priority:'high',order:-1,...data}); if(getNotify().onNewVehicle!==false) notify('Nové auto na odvoz', data.model + ((data.from||data.to)?(' · '+(data.from||'?')+' → '+(data.to||'?')):'')); }
   vehFormReset(); await persist(); renderVehicles();
@@ -576,10 +577,10 @@ function renderVehicles(){
 
   $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ state.vehicles=state.vehicles.filter(v=>v.id!==b.dataset.del); await persist(); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
-  $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene' && !v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
+  $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene'){ v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); } await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
-  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; if(!v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
   $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); await persist(); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
@@ -1031,9 +1032,9 @@ async function bootData(){
   try{ saved=await withTimeout(Store.load(),12000,'Načítanie dát'); }catch(e){ saved=null; }
   applyState(saved); renderAll();
   if(CLOUD && accessToken) startPolling();
-  $('footer').textContent = ((CLOUD && accessToken)
+  $('footer').textContent = (CLOUD && accessToken)
     ? 'Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'
-    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v15';
+    : 'Dáta sa ukladajú lokálne v tomto prehliadači.';
 }
 function showLogin(show){ $('loginOverlay').classList.toggle('hidden', !show); }
 async function doLogin(){
