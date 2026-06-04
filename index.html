@@ -79,6 +79,9 @@ select.in{cursor:pointer;}
 .drag-handle:active{cursor:grabbing;}
 .prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
 .veh-zone-wrap{margin-bottom:22px;}
+.card-foot{display:flex; align-items:center; gap:8px; margin-top:12px;}
+.done-btn{margin-left:auto; width:34px; height:34px; border-radius:50%; border:1px solid #3f9d6b; background:#3f9d6b; color:#fff; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+.done-btn:hover{background:#348a5c; border-color:#348a5c;}
 .veh-zone-head{font-family:'Fraunces',serif; font-size:16px; font-weight:600; display:flex; align-items:center; gap:9px; padding-bottom:9px; margin-bottom:12px; border-bottom:1px solid var(--line);}
 .zone-count{font-family:'Manrope',sans-serif; font-size:11px; background:var(--ink); color:#fff; border-radius:20px; padding:1px 9px;}
 .veh-zone{min-height:70px; border:1px dashed transparent; border-radius:10px; transition:border-color .15s; padding:4px;}
@@ -542,7 +545,10 @@ function vehCard(v){
       <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> Aktuálne v preprave</label>
       ${v.driverId?`<div class="driver-line">Priradený: <strong>${dName(v.driverId)}</strong></div>`:''}
       ${v.note?`<div class="note">📝 ${esc(v.note)}</div>`:''}
-      ${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="margin-top:12px; padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}
+      ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">
+        ${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}
+        ${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="Označiť ako vybavené">✓</button>`:''}
+      </div>`:''}
     </div>`;
 }
 
@@ -559,13 +565,16 @@ function renderVehicles(){
   };
   $('vehList').innerHTML = (list.length===0)
     ? '<div class="empty">Zatiaľ žiadne vozidlá. Pridaj prvé hore.</div>'
-    : '<div id="vehZones">'+zone('high')+zone('med')+zone('low')+'</div>';
+    : (vehFilter==='vybavene'
+        ? '<div class="list">'+[...list].sort(byOrder).map(vehCard).join('')+'</div>'
+        : '<div id="vehZones">'+zone('high')+zone('med')+zone('low')+'</div>');
 
   $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ state.vehicles=state.vehicles.filter(v=>v.id!==b.dataset.del); await persist(); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
+  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
   $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; await persist(); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
@@ -1019,7 +1028,7 @@ async function bootData(){
   if(CLOUD && accessToken) startPolling();
   $('footer').textContent = ((CLOUD && accessToken)
     ? 'Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'
-    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v12';
+    : 'Dáta sa ukladajú lokálne v tomto prehliadači.') + '  ·  v14';
 }
 function showLogin(show){ $('loginOverlay').classList.toggle('hidden', !show); }
 async function doLogin(){
