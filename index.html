@@ -47,7 +47,7 @@ body{
 .tab:hover{color:var(--ink);}
 .tab.active{color:var(--ink); border-bottom-color:var(--ink);}
 
-.card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; margin-bottom:14px; box-shadow:0 1px 2px rgba(0,0,0,.03);}
+.card{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px; margin-bottom:14px; box-shadow:0 1px 2px rgba(0,0,0,.03);}
 .form-title{font-family:'Fraunces',serif; font-weight:600; font-size:17px; margin:0 0 16px;}
 .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
 .field{display:flex; flex-direction:column; gap:5px;}
@@ -79,8 +79,8 @@ select.in{cursor:pointer;}
 .drag-handle:active{cursor:grabbing;}
 .prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
 .veh-zone-wrap{margin-bottom:22px;}
-.card-foot{display:flex; align-items:center; gap:8px; margin-top:12px;}
-.done-btn{margin-left:auto; width:34px; height:34px; border-radius:50%; border:1px solid #3f9d6b; background:#3f9d6b; color:#fff; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+.card-foot{display:flex; align-items:center; min-height:36px; margin-top:12px; padding-right:46px;}
+.done-btn{position:absolute; right:16px; bottom:16px; width:34px; height:34px; border-radius:50%; border:1px solid #3f9d6b; background:#3f9d6b; color:#fff; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .done-btn:hover{background:#348a5c; border-color:#348a5c;}
 .veh-zone-head{font-family:'Fraunces',serif; font-size:16px; font-weight:600; display:flex; align-items:center; gap:9px; padding-bottom:9px; margin-bottom:12px; border-bottom:1px solid var(--line);}
 .zone-count{font-family:'Manrope',sans-serif; font-size:11px; background:var(--ink); color:#fff; border-radius:20px; padding:1px 9px;}
@@ -551,10 +551,7 @@ function vehCard(v){
       ${v.driverId?`<div class="driver-line">Priradený: <strong>${dName(v.driverId)}</strong></div>`:''}
       ${(v.startDate||v.endDate)?`<div class="dates">🚚 ${v.startDate?fmtDate(v.startDate):'—'}${v.endDate?` &nbsp;→&nbsp; ✓ ${fmtDate(v.endDate)}`:''}</div>`:''}
       ${v.note?`<div class="note">📝 ${esc(v.note)}</div>`:''}
-      ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">
-        ${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}
-        ${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="Označiť ako vybavené">✓</button>`:''}
-      </div>`:''}
+      ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}</div>${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="Označiť ako vybavené">✓</button>`:''}`:''}
     </div>`;
 }
 
