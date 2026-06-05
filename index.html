@@ -91,7 +91,8 @@ select.in{cursor:pointer;}
 .sel-bar .sel-actions{display:flex; gap:8px;}
 .sel-bar .btn{padding:7px 14px;}
 .sel-bar .btn-ghost{color:#fff; border-color:rgba(255,255,255,.35); background:transparent;}
-.nick-row{display:flex; gap:6px; margin-bottom:6px;}
+.nick-row{display:flex; gap:6px; margin-bottom:6px; align-items:center;}
+.nick-row .drag-handle{flex:0 0 auto;}
 .row-del{flex:0 0 auto; width:36px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; color:var(--muted); font-size:13px;}
 .row-del:hover{color:#d24b4b; border-color:#d24b4b;}
 .nick-row .nick-email{flex:1.3; min-width:0;}
@@ -445,11 +446,12 @@ function renderNickRows(){
   if(rows.length===0) rows.push(nickRowHTML('',''));
   $('nickRows').innerHTML=rows.join('');
 }
-function placeRowHTML(name,addr){ return `<div class="nick-row"><input class="in place-name" placeholder="Názov (napr. SELECTED Showroom)" value="${esc(name||'')}"><input class="in place-addr" placeholder="Adresa" value="${esc(addr||'')}"><button class="row-del" title="Odstrániť">✕</button></div>`; }
+function placeRowHTML(name,addr){ return `<div class="nick-row"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><input class="in place-name" placeholder="Názov (napr. SELECTED Showroom)" value="${esc(name||'')}"><input class="in place-addr" placeholder="Adresa" value="${esc(addr||'')}"><button class="row-del" title="Odstrániť">✕</button></div>`; }
 function renderPlaceRows(){
   const rows=getPlaces().map(p=>placeRowHTML(p.name,p.address));
   if(rows.length===0) rows.push(placeRowHTML('',''));
   $('placeRows').innerHTML=rows.join('');
+  if(window.Sortable) Sortable.create($('placeRows'), { animation:150, handle:'.drag-handle' });
 }
 function openSettings(){ if(CLOUD && !accessToken) return; renderNickRows(); renderPlaceRows(); $('settingsOverlay').classList.remove('hidden'); }
 function closeSettings(){ $('settingsOverlay').classList.add('hidden'); }
