@@ -298,7 +298,6 @@ select.in{cursor:pointer;}
             <option value="vybavene">Vybavené</option>
           </select></div>
         <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
-        <div class="field"><label class="label">Vzdialenosť (km)</label><input class="in" id="vDist" type="number" placeholder="0"></div>
         <div class="field"><label class="label">Cena prepravy (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="napr. 350"></div>
         <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
         <div class="field"><label class="label">Začiatok prepravy</label><input class="in" id="vStart" type="date"></div>
@@ -694,7 +693,7 @@ function refreshDriverSelect(){ $('vDriver').innerHTML = driverOptions($('vDrive
 function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d&&m&&y?`${d}.${m}.${y}`:iso; }
 function vehFormReset(){
-  ['vModel','vVin','vFrom','vTo','vDist','vNote','vStart','vPrice'].forEach(i=>$(i).value='');
+  ['vModel','vVin','vFrom','vTo','vNote','vStart','vPrice'].forEach(i=>$(i).value='');
   $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false;
   editVeh=null; $('vehFormTitle').textContent='Pridať vozidlo na odvoz';
   $('vSubmit').textContent='Pridať'; $('vCancel').classList.add('hidden');
@@ -702,7 +701,7 @@ function vehFormReset(){
 $('vSubmit').addEventListener('click', async ()=>{
   const model=$('vModel').value.trim(); if(!model) return;
   const data={ model, vin:$('vVin').value, from:$('vFrom').value, to:$('vTo').value,
-    status:$('vStatus').value, driverId:$('vDriver').value, distance:$('vDist').value, note:$('vNote').value,
+    status:$('vStatus').value, driverId:$('vDriver').value, note:$('vNote').value,
     inTransit:$('vInTransit').checked, startDate:$('vStart').value, transportPrice:parseFloat(($('vPrice').value||'').replace(',','.'))||0 };
   if(data.inTransit && !data.startDate) data.startDate=todayISO();
   if(editVeh){ const i=state.vehicles.findIndex(v=>v.id===editVeh); if(i>-1) state.vehicles[i]={...state.vehicles[i],...data}; }
@@ -828,7 +827,7 @@ function startEditVeh(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
   $('vModel').value=v.model||''; $('vVin').value=v.vin||''; $('vFrom').value=v.from||''; $('vTo').value=v.to||'';
   $('vStatus').value=v.status||'aktualne'; refreshDriverSelect(); $('vDriver').value=v.driverId||'';
-  $('vDist').value=v.distance||''; $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||'';
+  $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||'';
   editVeh=id; $('vehFormTitle').textContent='Upraviť vozidlo'; $('vSubmit').textContent='Uložiť'; $('vCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
