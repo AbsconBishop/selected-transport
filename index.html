@@ -26,7 +26,7 @@
 body{
   margin:0; font-family:'Manrope',system-ui,sans-serif;
   background:radial-gradient(900px 500px at 85% -10%, #eef1f4 0%, transparent 60%), var(--bg);
-  color:var(--ink); min-height:100vh; padding:18px;
+  color:var(--ink); min-height:100vh; padding:18px; padding-bottom:90px;
 }
 .mono{font-family:ui-monospace,Menlo,Consolas,monospace; letter-spacing:.5px;}
 
@@ -80,6 +80,16 @@ select.in{cursor:pointer;}
 .prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
 .veh-zone-wrap{margin-bottom:22px;}
 .added-by{font-size:10.5px; color:var(--muted); margin-top:8px; opacity:.8;}
+.lang-toggle{display:flex; gap:6px; margin:4px 0 10px;}
+.lang-btn{flex:1; padding:8px 10px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:'Manrope',sans-serif; font-size:13px; color:var(--ink2);}
+.lang-btn.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+.sel-chk{width:17px; height:17px; cursor:pointer; flex:0 0 auto; accent-color:var(--ink);}
+.card-selected{box-shadow:0 0 0 2px var(--ink), 0 1px 2px rgba(0,0,0,.03);}
+.sel-bar{position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:2500; display:flex; align-items:center; gap:16px; background:var(--ink); color:#fff; padding:10px 14px 10px 18px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.25);}
+.sel-bar .sel-count{font-size:13px; font-weight:600; white-space:nowrap;}
+.sel-bar .sel-actions{display:flex; gap:8px;}
+.sel-bar .btn{padding:7px 14px;}
+.sel-bar .btn-ghost{color:#fff; border-color:rgba(255,255,255,.35); background:transparent;}
 .nick-row{display:flex; gap:6px; margin-bottom:6px;}
 .nick-row .nick-email{flex:1.3; min-width:0;}
 .nick-row .nick-name{flex:1; min-width:0;}
@@ -356,6 +366,31 @@ select.in{cursor:pointer;}
 
 <footer class="footer" id="footer"></footer>
 
+<div id="selBar" class="sel-bar hidden">
+  <span class="sel-count" id="selCount">0 označených</span>
+  <div class="sel-actions">
+    <button class="btn btn-ghost" id="selCancel">Zrušiť</button>
+    <button class="btn btn-ghost" id="selDelete" style="color:#d24b4b; border-color:#d24b4b">Vymazať</button>
+    <button class="btn btn-dark" id="selCopy">Kopírovať</button>
+  </div>
+</div>
+
+<div id="copyOverlay" class="login-overlay hidden">
+  <div class="login-box" style="align-items:stretch; text-align:left; width:520px; max-width:94vw;">
+    <div class="login-title" style="text-align:center">Text pre prepravcu</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="langSk" data-lang="sk">Slovensky</button>
+      <button class="lang-btn" id="langEn" data-lang="en">English</button>
+    </div>
+    <div class="notify-help" id="copyStatus">Text bol skopírovaný do schránky — môžeš ho rovno poslať.</div>
+    <textarea class="in" id="copyText" style="min-height:280px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.5; resize:vertical"></textarea>
+    <div class="notify-actions">
+      <button class="btn btn-dark" id="copyAgain">Kopírovať znova</button>
+    </div>
+    <button class="btn btn-ghost" id="copyClose" style="margin-top:8px; justify-content:center">Zavrieť</button>
+  </div>
+</div>
+
 <script>
 /* ---------------- helpers ---------------- */
 const $ = (id) => document.getElementById(id);
@@ -457,6 +492,7 @@ const Store = {
 let state = { drivers:[], vehicles:[], routes:[], settings:{} };
 let editVeh=null, editDrv=null;
 let vehFilter='all';
+let selectedVeh=new Set();
 
 async function persist(){ await Store.save(state); renderStats(); }
 
@@ -481,6 +517,80 @@ function openNotify(){
   $('notifyOverlay').classList.remove('hidden');
 }
 $('notifyBtn').addEventListener('click', openNotify);
+function updateSelBar(){
+  const n=selectedVeh.size;
+  const bar=$('selBar');
+  if(n>0){ bar.classList.remove('hidden'); $('selCount').textContent = n+(n===1?' označené':(n<5?' označené':' označených')); }
+  else bar.classList.add('hidden');
+}
+function clearSelection(){ selectedVeh.clear(); updateSelBar(); renderVehicles(); }
+$('selCancel').addEventListener('click', clearSelection);
+$('selDelete').addEventListener('click', async ()=>{
+  const n=selectedVeh.size; if(!n) return;
+  if(!confirm('Vymazať '+n+' označených áut? Túto akciu nie je možné vrátiť späť.')) return;
+  state.vehicles=state.vehicles.filter(v=>!selectedVeh.has(v.id));
+  selectedVeh.clear(); await persist(); updateSelBar(); renderVehicles();
+});
+const EN_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function formatEnDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); if(!(y&&m&&d)) return iso; return parseInt(d,10)+' '+EN_MONTHS[parseInt(m,10)-1]+' '+y; }
+function buildTransportText(lang){
+  const items=state.vehicles.filter(v=>selectedVeh.has(v.id));
+  const L=lang==='en';
+  const lines=[];
+  if(L){
+    lines.push('Hello,','');
+    lines.push(items.length>1 ? 'We would like to request a transport quote for the following vehicles:' : 'We would like to request a transport quote for the following vehicle:');
+    lines.push('');
+  } else {
+    lines.push('Dobrý deň,','');
+    lines.push(items.length>1 ? 'radi by sme si vyžiadali cenovú ponuku na prepravu nasledujúcich vozidiel:' : 'radi by sme si vyžiadali cenovú ponuku na prepravu nasledujúceho vozidla:');
+    lines.push('');
+  }
+  items.forEach((v,i)=>{
+    const num=items.length>1?(i+1)+'. ':'';
+    lines.push(num+(v.model||(L?'Vehicle':'Vozidlo')));
+    if(L){
+      lines.push('   Route: '+(v.from||'TBC')+' → '+(v.to||'TBC'));
+      lines.push('   Requested loading date: '+(v.startDate?formatEnDate(v.startDate):'to be confirmed'));
+    } else {
+      lines.push('   Trasa: '+(v.from||'bude upresnené')+' → '+(v.to||'bude upresnené'));
+      lines.push('   Požadovaný dátum nakládky: '+(v.startDate?fmtDate(v.startDate):'bude upresnené'));
+    }
+    if(v.vin) lines.push('   VIN: '+v.vin.toUpperCase());
+    lines.push('');
+  });
+  if(L){
+    lines.push('Could you please confirm your availability and send us your best price for this transport?','');
+    lines.push('Thank you in advance.');
+  } else {
+    lines.push('Vedeli by ste nám potvrdiť dostupnosť a poslať najlepšiu cenu za túto prepravu?','');
+    lines.push('Vopred ďakujeme.');
+  }
+  return lines.join('\n');
+}
+async function doCopy(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){ try{ const t=$('copyText'); t.focus(); t.select(); document.execCommand('copy'); return true; }catch(e2){ return false; } }
+}
+let copyLang='sk';
+async function showCopy(lang){
+  copyLang=lang;
+  $('langSk').classList.toggle('active', lang==='sk');
+  $('langEn').classList.toggle('active', lang==='en');
+  const text=buildTransportText(lang);
+  $('copyText').value=text;
+  const ok=await doCopy(text);
+  $('copyStatus').textContent = ok ? 'Text bol skopírovaný do schránky — môžeš ho rovno poslať.' : 'Skopíruj text nižšie ručne (označ a Ctrl/Cmd+C).';
+}
+$('selCopy').addEventListener('click', async ()=>{
+  if(!selectedVeh.size) return;
+  $('copyOverlay').classList.remove('hidden');
+  await showCopy(copyLang);
+});
+$('langSk').addEventListener('click', ()=>showCopy('sk'));
+$('langEn').addEventListener('click', ()=>showCopy('en'));
+$('copyAgain').addEventListener('click', async ()=>{ const ok=await doCopy($('copyText').value); $('copyStatus').textContent = ok?'Skopírované ✓':'Označ text a stlač Ctrl/Cmd+C.'; });
+$('copyClose').addEventListener('click', ()=>$('copyOverlay').classList.add('hidden'));
 $('settingsBtn').addEventListener('click', openSettings);
 $('settingsClose').addEventListener('click', closeSettings);
 $('nickAdd').addEventListener('click', ()=>{ $('nickRows').insertAdjacentHTML('beforeend', nickRowHTML('','')); });
@@ -582,9 +692,9 @@ const PRIOS = { high:{label:'Vysoká priorita', color:'#d24b4b'}, med:{label:'St
 function vehCard(v){
   const s=STATUSES[v.status];
   const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'—'; };
-  return `<div class="card" data-id="${v.id}" style="border-left:3px solid ${s.color}">
+  return `<div class="card${selectedVeh.has(v.id)?' card-selected':''}" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'}</div>
+        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'}</div>
         <div class="iconbtns">
           <button class="iconbtn" data-edit="${v.id}">✎</button>
           <button class="iconbtn" data-del="${v.id}">🗑</button>
@@ -632,6 +742,13 @@ function renderVehicles(){
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; await persist(); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
   $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); await persist(); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-sel]').forEach(c=>c.addEventListener('change',()=>{
+    const id=c.dataset.sel;
+    if(c.checked) selectedVeh.add(id); else selectedVeh.delete(id);
+    const card=c.closest('.card'); if(card) card.classList.toggle('card-selected', c.checked);
+    updateSelBar();
+  }));
+  updateSelBar();
   $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); await persist(); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
