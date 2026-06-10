@@ -546,8 +546,18 @@ function syncBadge(){
   if(outbox.length){ f.textContent='⚠ '+outbox.length+(outbox.length===1?' neuložená zmena':' neuložených zmien')+' — skúšam znova…'; f.style.color='#d24b4b'; }
   else { f.textContent='Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'; f.style.color=''; }
 }
+/* Postgres (21000) odmietne upsert, ak je v jednej dávke ten istý id dvakrát.
+   Dedup necháva POSLEDNÝ výskyt = najnovší stav. Beží pri odoslaní, takže
+   očistí aj ops, ktoré už ležia vo fronte v localStorage. */
+function dedupeRows(rows){
+  const m=new Map(); (rows||[]).forEach(r=>{ if(r && r.id!=null) m.set(r.id, r); });
+  return [...m.values()];
+}
 async function execOp(op){
-  if(op.t==='up') await rest(op.table, {method:'POST', headers:{'Prefer':'resolution=merge-duplicates'}, body:JSON.stringify(op.rows)});
+  if(op.t==='up'){
+    const rows=dedupeRows(op.rows); if(!rows.length) return;
+    await rest(op.table, {method:'POST', headers:{'Prefer':'resolution=merge-duplicates'}, body:JSON.stringify(rows)});
+  }
   else if(op.t==='del') await rest(op.table+'?id=eq.'+encodeURIComponent(op.id), {method:'DELETE'});
 }
 async function flushOutbox(){
@@ -887,10 +897,11 @@ function renderVehicles(){
 }
 async function onVehicleZoneDrop(){
   try{
-    const changed=[];
+    const changed=[], seen=new Set();
     document.querySelectorAll('#vehZones .veh-zone').forEach(z=>{
       const p=z.dataset.prio;
       [...z.querySelectorAll(':scope > .card')].forEach((el,i)=>{
+        if(seen.has(el.dataset.id)) return; seen.add(el.dataset.id);
         const v=state.vehicles.find(x=>x.id===el.dataset.id);
         if(v && (v.priority!==p || v.order!==i)){ v.priority=p; v.order=i; changed.push(v); }
       });
@@ -992,10 +1003,11 @@ function ensureDriverOrder(){
   }
 }
 async function onDriverDrop(){
-  const changed=[];
+  const changed=[], seen=new Set();
   $('drvList').querySelectorAll('.drv-drop').forEach(col=>{
     const tier=col.dataset.coltier;
     [...col.querySelectorAll(':scope > .card')].forEach((el,i)=>{
+      if(seen.has(el.dataset.id)) return; seen.add(el.dataset.id);
       const d=state.drivers.find(x=>x.id===el.dataset.id);
       if(d && (d.tier!==tier || d.order!==i)){ d.tier=tier; d.order=i; changed.push(d); }
     });
