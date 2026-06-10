@@ -354,6 +354,7 @@ select.in{cursor:pointer;}
       <div id="cMap" class="map"></div>
       <div class="map-hint">
         <span class="badge" id="cEngine">Zadarmo (OpenStreetMap)</span>
+        <a id="geoAttrib" href="https://www.geoapify.com/" target="_blank" rel="noopener" class="gkey-hint" style="display:none"></a>
         <span>Klik do mapy = pridať bod. Body ťahaj na úpravu. Trasa vedie v poradí A → B → C …</span>
         <button class="btn btn-ghost" id="cClear" style="padding:5px 12px; margin-left:auto">Vymazať body</button>
       </div>
@@ -420,6 +421,10 @@ const STATUSES = {
 /* ---------------- Supabase cez REST (bez SDK – spoľahlivejšie) ---------------- */
 const SUPABASE_URL='https://hwkpvzkzmbufhougwofy.supabase.co';
 const SUPABASE_KEY='sb_publishable_SZmLLXby39QNQ7RYS5_4lA_hDvBx3on';
+/* Geoapify (routing + geocoding, free 3000 kreditov/deň): kľúč z https://myprojects.geoapify.com
+   Prázdne = kalkulačka beží na OSRM/Photon demo serveroch ako doteraz. */
+const GEOAPIFY_KEY='';
+const hasGeoKey=()=>typeof GEOAPIFY_KEY==='string' && GEOAPIFY_KEY.length>10;
 const CLOUD = typeof SUPABASE_URL==='string' && SUPABASE_URL.indexOf('http')===0;
 let accessToken=null, pollTimer=null;
 
@@ -480,10 +485,27 @@ async function sbRefresh(){
   }catch(e){ return false; }
 }
 /* ---- REST helper s auto-refreshom tokenu ---- */
+let authExpired=false;
+function sessionExpired(){
+  if(authExpired) return; authExpired=true;
+  accessToken=null;
+  if(pollTimer){ clearInterval(pollTimer); pollTimer=null; }
+  showLogin(true);
+  const e=document.getElementById('loginErr');
+  if(e) e.textContent='Relácia vypršala — prihlás sa znova. Neuložené zmeny sú vo fronte a odošlú sa hneď po prihlásení.';
+}
 async function rest(path, opts, retry){
   opts=opts||{};
   const res=await fetch(SUPABASE_URL+'/rest/v1/'+path, Object.assign({}, opts, {headers:Object.assign({}, authHeaders(), {'Content-Type':'application/json'}, opts.headers||{})}));
-  if(res.status===401 && retry!==false && await sbRefresh()) return rest(path, opts, false);
+  if(res.status===401){
+    if(retry!==false){
+      const t=loadTokens();
+      if(t && t.access_token && t.access_token!==accessToken){ accessToken=t.access_token; return rest(path, opts, false); }
+      if(await sbRefresh()) return rest(path, opts, false);
+    }
+    sessionExpired();
+    throw new Error('HTTP 401');
+  }
   if(!res.ok) throw new Error('HTTP '+res.status);
   return res;
 }
@@ -724,6 +746,7 @@ function startPolling(){
     try{ await loadAll(); renderAll(); }catch(e){}
   }, 10000);
   setInterval(flushOutbox, 5000);
+  setInterval(async ()=>{ const t=loadTokens(); if(t && t.expires_at && Date.now() > t.expires_at - 120000){ await sbRefresh(); } }, 60000);
   window.addEventListener('online', flushOutbox);
 }
 
@@ -1055,7 +1078,10 @@ function initGoogle(){
 }
 function updateEngineBadge(){
   const b=document.getElementById('cEngine'); if(!b) return;
-  b.textContent = engine==='google' ? 'Google Maps \u2014 h\u013Eadaj pod\u013Ea n\u00E1zvu' : 'Zadarmo (OpenStreetMap) \u2014 h\u013Eadaj pod\u013Ea n\u00E1zvu';
+  b.textContent = engine==='google' ? 'Google Maps \u2014 h\u013Eadaj pod\u013Ea n\u00E1zvu'
+    : (hasGeoKey() ? 'Geoapify \u2014 h\u013Eadaj pod\u013Ea n\u00E1zvu' : 'Zadarmo (OpenStreetMap) \u2014 h\u013Eadaj pod\u013Ea n\u00E1zvu');
+  const a=document.getElementById('geoAttrib');
+  if(a){ a.textContent='Powered by Geoapify'; a.style.display=hasGeoKey()?'':'none'; }
 }
 function pinIconLeaflet(letter,last){ return L.divIcon({className:'',html:'<div class="pin '+(last?'b':'')+'">'+letter+'</div>',iconSize:[26,26],iconAnchor:[13,13]}); }
 
@@ -1164,7 +1190,26 @@ async function computeRoute(){
   }
 
   let drawn=false, distKm=0, estimate=false;
-  try{
+  if(hasGeoKey()){
+    try{
+      const wp=pts.map(p=>p.lat+','+p.lng).join('|');
+      const data=await fetchJson('https://api.geoapify.com/v1/routing?waypoints='+encodeURIComponent(wp)+'&mode=drive&apiKey='+GEOAPIFY_KEY, 8000);
+      const f=data.features && data.features[0];
+      if(f && f.properties){
+        distKm=(f.properties.distance||0)/1000;
+        let cs=[]; const g=f.geometry||{};
+        if(g.type==='MultiLineString') (g.coordinates||[]).forEach(seg=>{ cs=cs.concat(seg); });
+        else cs=g.coordinates||[];
+        const coords=cs.map(c=>[c[1],c[0]]);
+        if(coords.length && distKm>0){
+          if(routeLine) map.removeLayer(routeLine);
+          routeLine=L.polyline(coords,{color:'#141414',weight:4,opacity:.85}).addTo(map);
+          map.fitBounds(routeLine.getBounds(),{padding:[40,40]}); drawn=true;
+        }
+      }
+    }catch(e){ /* Geoapify nedostupné → padá na OSRM */ }
+  }
+  if(!drawn) try{
     const coordStr=pts.map(p=>p.lng+','+p.lat).join(';');
     const url='https://router.project-osrm.org/route/v1/driving/'+coordStr+'?overview=full&geometries=geojson';
     const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),8000);
@@ -1195,23 +1240,31 @@ function attachFreeAutocomplete(inp,i){
     const q=inp.value.trim();
     clearTimeout(_acTimers[i]);
     if(q.length<3){ closeDropdown(); return; }
-    _acTimers[i]=setTimeout(()=>photonSuggest(q,i,inp),300);
+    _acTimers[i]=setTimeout(()=>placeSuggest(q,i,inp),300);
   });
   inp.addEventListener('blur',()=>{ setTimeout(closeDropdown,180); });
-  inp.addEventListener('focus',()=>{ const q=inp.value.trim(); if(q.length>=3) photonSuggest(q,i,inp); });
+  inp.addEventListener('focus',()=>{ const q=inp.value.trim(); if(q.length>=3) placeSuggest(q,i,inp); });
 }
-async function photonSuggest(query,i,inp){
+async function fetchJson(url,ms){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),ms||6000);
+  const res=await fetch(url,{signal:ctrl.signal}); clearTimeout(t);
+  return res.json();
+}
+async function placeSuggest(query,i,inp){
+  if(hasGeoKey()){
+    try{
+      const data=await fetchJson('https://api.geoapify.com/v1/geocode/autocomplete?text='+encodeURIComponent(query)+'&limit=6&bias=proximity:19.5,48.7&apiKey='+GEOAPIFY_KEY);
+      renderDropdown(inp,i,(data.features||[])); return;
+    }catch(e){ /* Geoapify nedostupné → skús Photon */ }
+  }
   try{
-    const url='https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=6&lang=default&lat=48.7&lon=19.5';
-    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),6000);
-    const res=await fetch(url,{signal:ctrl.signal}); clearTimeout(t);
-    const data=await res.json();
+    const data=await fetchJson('https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=6&lang=default&lat=48.7&lon=19.5');
     renderDropdown(inp,i,(data.features||[]));
   }catch(e){ /* sieť nedostupná → ticho, ostáva tlačidlo Nájsť */ }
 }
 function featLabel(f){
   const p=f.properties||{};
-  const name=p.name||'';
+  const name=p.name||p.address_line1||'';
   const ctx=[p.street, p.city||p.town||p.village, p.state, p.country].filter(Boolean).join(', ');
   return {name: name || ctx || 'Miesto', ctx: name?ctx:''};
 }
@@ -1256,10 +1309,17 @@ async function geocodeStop(i){
     return;
   }
   try{
-    const url='https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=1&lang=default&lat=48.7&lon=19.5';
-    const res=await fetch(url);
-    const data=await res.json();
-    const f=(data.features||[])[0];
+    let f=null;
+    if(hasGeoKey()){
+      try{
+        const g=await fetchJson('https://api.geoapify.com/v1/geocode/search?text='+encodeURIComponent(query)+'&limit=1&bias=proximity:19.5,48.7&apiKey='+GEOAPIFY_KEY);
+        f=(g.features||[])[0]||null;
+      }catch(e){ /* fallback nižšie */ }
+    }
+    if(!f){
+      const data=await fetchJson('https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=1&lang=default&lat=48.7&lon=19.5');
+      f=(data.features||[])[0];
+    }
     if(f && f.geometry){
       const c=f.geometry.coordinates; const L=featLabel(f);
       stops[i].latlng={lat:c[1],lng:c[0]}; stops[i].label=L.name+(L.ctx?(', '+L.ctx):''); renderStops(); refreshMarkers();
@@ -1326,7 +1386,7 @@ async function doLogin(){
   const btn=$('loginBtn'); btn.disabled=true; const old=btn.textContent; btn.textContent='Prihlasujem…';
   try{
     await withTimeout(sbLogin(email,password),8000,'Prihlásenie');
-    showLogin(false); $('logoutBtn').classList.remove('hidden'); await bootData();
+    authExpired=false; showLogin(false); $('logoutBtn').classList.remove('hidden'); await bootData();
     dbg('✓ hotovo'); return;
   }catch(e){
     const m=(e&&e.message)||'';
