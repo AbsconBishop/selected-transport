@@ -83,7 +83,7 @@ select.in{cursor:pointer;}
 .veh-zone-wrap{margin-bottom:22px;}
 .added-by{font-size:10.5px; color:var(--muted); margin-top:8px; opacity:.8;}
 .price-tag{background:rgba(63,157,107,.12); color:#2f7d54; border:1px solid rgba(63,157,107,.35); font-weight:700;}
-.cost-tag{background:rgba(139,143,150,.12); color:#5b5f66; border:1px solid rgba(139,143,150,.35); font-weight:700;}
+.cost-tag{background:rgba(210,75,75,.12); color:#c0392b; border:1px solid rgba(210,75,75,.4); font-weight:700;}
 .margin-tag{background:rgba(47,109,181,.12); color:#2f6db5; border:1px solid rgba(47,109,181,.35); font-weight:700;}
 .lang-toggle{display:flex; gap:6px; margin:4px 0 10px;}
 .lang-btn{flex:1; padding:8px 10px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:'Manrope',sans-serif; font-size:13px; color:var(--ink2);}
@@ -302,15 +302,15 @@ select.in{cursor:pointer;}
             <option value="tyzdne">O 1–2 týždne</option>
             <option value="vybavene">Vybavené</option>
           </select></div>
-        <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
-        <div class="field"><label class="label">Cena pre klienta (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="koľko účtujeme"></div>
         <div class="field"><label class="label">Naša cena / náklad (€)</label><input class="in" id="vCost" type="text" inputmode="decimal" placeholder="koľko platíme my"></div>
+        <div class="field"><label class="label">Cena pre klienta (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="koľko účtujeme"></div>
+        <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
         <div class="field"><label class="label">Firma (pre koho)</label><select class="in" id="vCompany">
             <option value="selected">SELECTED</option>
             <option value="transportcars">TransportCars</option>
           </select></div>
-        <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
         <div class="field"><label class="label">Začiatok prepravy</label><input class="in" id="vStart" type="date"></div>
+        <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
         <div class="field wide"><label class="label">Poznámka</label><input class="in" id="vNote" placeholder="Termín, kontakt, detaily…"></div>
       </div>
       <div class="actions">
@@ -868,8 +868,8 @@ function vehCard(v){
         </select>
         <select class="pill-select" data-driver="${v.id}">${driverOptions(v.driverId)}</select>
         ${Number(v.distance)>0?`<span class="tag">${kmF(v.distance)} km</span>`:''}
-        ${Number(v.transportPrice)>0?`<span class="tag price-tag" title="Cena pre klienta">Klient: ${eur(v.transportPrice)}</span>`:''}
-        ${Number(v.costPrice)>0?`<span class="tag cost-tag" title="Naša cena / náklad">Náklad: ${eur(v.costPrice)}</span>`:''}
+        ${Number(v.transportPrice)>0?`<span class="tag price-tag" title="Cena pre klienta">${eur(v.transportPrice)}</span>`:''}
+        ${Number(v.costPrice)>0?`<span class="tag cost-tag" title="Naša cena / náklad">${eur(v.costPrice)}</span>`:''}
         ${(Number(v.transportPrice)>0&&Number(v.costPrice)>0)?`<span class="tag margin-tag" title="Marža (klient − náklad)">${(v.transportPrice-v.costPrice)>=0?'+':'−'}${eur(Math.abs(v.transportPrice-v.costPrice))}</span>`:''}
         ${v.inTransit?`<span class="tag transit-on">🚚 V preprave</span>`:''}
       </div>
