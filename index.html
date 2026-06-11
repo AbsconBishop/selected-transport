@@ -74,14 +74,17 @@ select.in{cursor:pointer;}
 
 .list{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px;}
 .row-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
-.model{font-family:'Fraunces',serif; font-size:17px; font-weight:600; display:flex; align-items:center; gap:8px;}
+.model{font-family:'Fraunces',serif; font-size:17px; font-weight:600; display:flex; align-items:center; gap:8px; min-width:0;}
+.iconbtns{display:flex; gap:4px; align-items:center; flex:0 0 auto;}
+.company-badge{font-family:'Manrope',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; color:#fff; padding:3px 8px; border-radius:20px; white-space:nowrap; margin-right:2px;}
 .drag-handle{cursor:grab; color:var(--muted); font-weight:700; letter-spacing:-3px; font-size:15px; user-select:none; touch-action:none;}
 .drag-handle:active{cursor:grabbing;}
 .prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
 .veh-zone-wrap{margin-bottom:22px;}
 .added-by{font-size:10.5px; color:var(--muted); margin-top:8px; opacity:.8;}
-.company-badge{font-family:'Manrope',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; color:#fff; padding:2px 8px; border-radius:20px; vertical-align:middle; white-space:nowrap;}
 .price-tag{background:rgba(63,157,107,.12); color:#2f7d54; border:1px solid rgba(63,157,107,.35); font-weight:700;}
+.cost-tag{background:rgba(139,143,150,.12); color:#5b5f66; border:1px solid rgba(139,143,150,.35); font-weight:700;}
+.margin-tag{background:rgba(47,109,181,.12); color:#2f6db5; border:1px solid rgba(47,109,181,.35); font-weight:700;}
 .lang-toggle{display:flex; gap:6px; margin:4px 0 10px;}
 .lang-btn{flex:1; padding:8px 10px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:'Manrope',sans-serif; font-size:13px; color:var(--ink2);}
 .lang-btn.active{background:var(--ink); color:#fff; border-color:var(--ink);}
@@ -300,7 +303,8 @@ select.in{cursor:pointer;}
             <option value="vybavene">Vybavené</option>
           </select></div>
         <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
-        <div class="field"><label class="label">Cena prepravy (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="napr. 350"></div>
+        <div class="field"><label class="label">Cena pre klienta (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="koľko účtujeme"></div>
+        <div class="field"><label class="label">Naša cena / náklad (€)</label><input class="in" id="vCost" type="text" inputmode="decimal" placeholder="koľko platíme my"></div>
         <div class="field"><label class="label">Firma (pre koho)</label><select class="in" id="vCompany">
             <option value="selected">SELECTED</option>
             <option value="transportcars">TransportCars</option>
@@ -522,11 +526,11 @@ const M={
   vehicles:{
     to:v=>({id:v.id, model:v.model||'', vin:v.vin||'', from_place:v.from||'', to_place:v.to||'', status:v.status||'aktualne',
       driver_id:v.driverId||'', note:v.note||'', in_transit:!!v.inTransit, start_date:v.startDate||'', end_date:v.endDate||'',
-      transport_price:num(v.transportPrice), priority:v.priority||'med', sort_order:num(v.order), company:v.company||'selected',
+      transport_price:num(v.transportPrice), cost_price:num(v.costPrice), priority:v.priority||'med', sort_order:num(v.order), company:v.company||'selected',
       distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||''}),
     from:r=>({id:r.id, model:r.model||'', vin:r.vin||'', from:r.from_place||'', to:r.to_place||'', status:r.status||'aktualne',
       driverId:r.driver_id||'', note:r.note||'', inTransit:!!r.in_transit, startDate:r.start_date||'', endDate:r.end_date||'',
-      transportPrice:num(r.transport_price), priority:r.priority||'med', order:num(r.sort_order), company:r.company||'selected',
+      transportPrice:num(r.transport_price), costPrice:num(r.cost_price), priority:r.priority||'med', order:num(r.sort_order), company:r.company||'selected',
       distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||''})
   },
   drivers:{
@@ -798,7 +802,7 @@ function refreshDriverSelect(){ $('vDriver').innerHTML = driverOptions($('vDrive
 function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d&&m&&y?`${d}.${m}.${y}`:iso; }
 function vehFormReset(){
-  ['vModel','vVin','vFrom','vTo','vNote','vStart','vPrice'].forEach(i=>$(i).value='');
+  ['vModel','vVin','vFrom','vTo','vNote','vStart','vPrice','vCost'].forEach(i=>$(i).value='');
   $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false; $('vCompany').value='selected';
   editVeh=null; $('vehFormTitle').textContent='Pridať vozidlo na odvoz';
   $('vSubmit').textContent='Pridať'; $('vCancel').classList.add('hidden');
@@ -807,7 +811,7 @@ $('vSubmit').addEventListener('click', async ()=>{
   const model=$('vModel').value.trim(); if(!model) return;
   const data={ model, vin:$('vVin').value, from:$('vFrom').value, to:$('vTo').value,
     status:$('vStatus').value, driverId:$('vDriver').value, note:$('vNote').value, company:$('vCompany').value,
-    inTransit:$('vInTransit').checked, startDate:$('vStart').value, transportPrice:parseFloat(($('vPrice').value||'').replace(',','.'))||0 };
+    inTransit:$('vInTransit').checked, startDate:$('vStart').value, transportPrice:parseFloat(($('vPrice').value||'').replace(',','.'))||0, costPrice:parseFloat(($('vCost').value||'').replace(',','.'))||0 };
   if(data.inTransit && !data.startDate) data.startDate=todayISO();
   if(editVeh){
     const i=state.vehicles.findIndex(v=>v.id===editVeh);
@@ -849,8 +853,9 @@ function vehCard(v){
   const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'—'; };
   return `<div class="card${selectedVeh.has(v.id)?' card-selected':''}" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'} <span class="company-badge" style="background:${COMPANIES[companyOf(v)].color}">${COMPANIES[companyOf(v)].label}</span></div>
+        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'}</div>
         <div class="iconbtns">
+          <span class="company-badge" style="background:${COMPANIES[companyOf(v)].color}">${COMPANIES[companyOf(v)].label}</span>
           <button class="iconbtn" data-edit="${v.id}">✎</button>
           <button class="iconbtn" data-del="${v.id}">🗑</button>
         </div>
@@ -863,7 +868,9 @@ function vehCard(v){
         </select>
         <select class="pill-select" data-driver="${v.id}">${driverOptions(v.driverId)}</select>
         ${Number(v.distance)>0?`<span class="tag">${kmF(v.distance)} km</span>`:''}
-        ${Number(v.transportPrice)>0?`<span class="tag price-tag">${eur(v.transportPrice)}</span>`:''}
+        ${Number(v.transportPrice)>0?`<span class="tag price-tag" title="Cena pre klienta">Klient: ${eur(v.transportPrice)}</span>`:''}
+        ${Number(v.costPrice)>0?`<span class="tag cost-tag" title="Naša cena / náklad">Náklad: ${eur(v.costPrice)}</span>`:''}
+        ${(Number(v.transportPrice)>0&&Number(v.costPrice)>0)?`<span class="tag margin-tag" title="Marža (klient − náklad)">${(v.transportPrice-v.costPrice)>=0?'+':'−'}${eur(Math.abs(v.transportPrice-v.costPrice))}</span>`:''}
         ${v.inTransit?`<span class="tag transit-on">🚚 V preprave</span>`:''}
       </div>
       <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> Aktuálne v preprave</label>
@@ -952,7 +959,7 @@ function startEditVeh(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
   $('vModel').value=v.model||''; $('vVin').value=v.vin||''; $('vFrom').value=v.from||''; $('vTo').value=v.to||'';
   $('vStatus').value=v.status||'aktualne'; refreshDriverSelect(); $('vDriver').value=v.driverId||'';
-  $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||''; $('vCompany').value=companyOf(v);
+  $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||''; $('vCost').value=v.costPrice||''; $('vCompany').value=companyOf(v);
   editVeh=id; $('vehFormTitle').textContent='Upraviť vozidlo'; $('vSubmit').textContent='Uložiť'; $('vCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
