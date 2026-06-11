@@ -80,6 +80,7 @@ select.in{cursor:pointer;}
 .prio-input{font-family:'Manrope',sans-serif; font-size:11px; font-weight:700; background:var(--ink); color:#fff; border:none; border-radius:20px; padding:2px 4px; width:40px; text-align:center; outline:none;}
 .veh-zone-wrap{margin-bottom:22px;}
 .added-by{font-size:10.5px; color:var(--muted); margin-top:8px; opacity:.8;}
+.company-badge{font-family:'Manrope',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; color:#fff; padding:2px 8px; border-radius:20px; vertical-align:middle; white-space:nowrap;}
 .price-tag{background:rgba(63,157,107,.12); color:#2f7d54; border:1px solid rgba(63,157,107,.35); font-weight:700;}
 .lang-toggle{display:flex; gap:6px; margin:4px 0 10px;}
 .lang-btn{flex:1; padding:8px 10px; border:1px solid var(--line); background:var(--panel); border-radius:8px; cursor:pointer; font-family:'Manrope',sans-serif; font-size:13px; color:var(--ink2);}
@@ -300,6 +301,10 @@ select.in{cursor:pointer;}
           </select></div>
         <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
         <div class="field"><label class="label">Cena prepravy (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="napr. 350"></div>
+        <div class="field"><label class="label">Firma (pre koho)</label><select class="in" id="vCompany">
+            <option value="selected">SELECTED</option>
+            <option value="transportcars">TransportCars</option>
+          </select></div>
         <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
         <div class="field"><label class="label">Začiatok prepravy</label><input class="in" id="vStart" type="date"></div>
         <div class="field wide"><label class="label">Poznámka</label><input class="in" id="vNote" placeholder="Termín, kontakt, detaily…"></div>
@@ -309,6 +314,7 @@ select.in{cursor:pointer;}
         <button class="btn btn-ghost hidden" id="vCancel">Zrušiť</button>
       </div>
     </div>
+    <div class="filters" id="vehCompanyFilters"></div>
     <div class="filters" id="vehFilters"></div>
     <div id="vehList"></div>
   </section>
@@ -516,11 +522,11 @@ const M={
   vehicles:{
     to:v=>({id:v.id, model:v.model||'', vin:v.vin||'', from_place:v.from||'', to_place:v.to||'', status:v.status||'aktualne',
       driver_id:v.driverId||'', note:v.note||'', in_transit:!!v.inTransit, start_date:v.startDate||'', end_date:v.endDate||'',
-      transport_price:num(v.transportPrice), priority:v.priority||'med', sort_order:num(v.order),
+      transport_price:num(v.transportPrice), priority:v.priority||'med', sort_order:num(v.order), company:v.company||'selected',
       distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||''}),
     from:r=>({id:r.id, model:r.model||'', vin:r.vin||'', from:r.from_place||'', to:r.to_place||'', status:r.status||'aktualne',
       driverId:r.driver_id||'', note:r.note||'', inTransit:!!r.in_transit, startDate:r.start_date||'', endDate:r.end_date||'',
-      transportPrice:num(r.transport_price), priority:r.priority||'med', order:num(r.sort_order),
+      transportPrice:num(r.transport_price), priority:r.priority||'med', order:num(r.sort_order), company:r.company||'selected',
       distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||''})
   },
   drivers:{
@@ -610,6 +616,9 @@ async function loadAll(){
 let state = { drivers:[], vehicles:[], routes:[], settings:{} };
 let editVeh=null, editDrv=null;
 let vehFilter='all';
+let companyFilter='all';
+const COMPANIES={ selected:{label:'SELECTED', color:'#16181d'}, transportcars:{label:'TransportCars', color:'#2f6db5'} };
+function companyOf(v){ return COMPANIES[v.company] ? v.company : 'selected'; }
 let selectedVeh=new Set();
 
 /* ---------------- oznámenia (ntfy) ---------------- */
@@ -790,14 +799,14 @@ function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); r
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d&&m&&y?`${d}.${m}.${y}`:iso; }
 function vehFormReset(){
   ['vModel','vVin','vFrom','vTo','vNote','vStart','vPrice'].forEach(i=>$(i).value='');
-  $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false;
+  $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false; $('vCompany').value='selected';
   editVeh=null; $('vehFormTitle').textContent='Pridať vozidlo na odvoz';
   $('vSubmit').textContent='Pridať'; $('vCancel').classList.add('hidden');
 }
 $('vSubmit').addEventListener('click', async ()=>{
   const model=$('vModel').value.trim(); if(!model) return;
   const data={ model, vin:$('vVin').value, from:$('vFrom').value, to:$('vTo').value,
-    status:$('vStatus').value, driverId:$('vDriver').value, note:$('vNote').value,
+    status:$('vStatus').value, driverId:$('vDriver').value, note:$('vNote').value, company:$('vCompany').value,
     inTransit:$('vInTransit').checked, startDate:$('vStart').value, transportPrice:parseFloat(($('vPrice').value||'').replace(',','.'))||0 };
   if(data.inTransit && !data.startDate) data.startDate=todayISO();
   if(editVeh){
@@ -815,9 +824,18 @@ $('vCancel').addEventListener('click', vehFormReset);
 $('vFromPick').addEventListener('change', e=>{ if(e.target.value){ $('vFrom').value=e.target.value; e.target.value=''; } });
 $('vToPick').addEventListener('change', e=>{ if(e.target.value){ $('vTo').value=e.target.value; e.target.value=''; } });
 
+function renderCompanyFilters(){
+  const cnt=(c)=> state.vehicles.filter(v=>v.status!=='vybavene' && companyOf(v)===c).length;
+  let h = `<button class="filter ${companyFilter==='all'?'active':''}" data-cf="all">Všetky firmy (${state.vehicles.filter(v=>v.status!=='vybavene').length})</button>`;
+  Object.entries(COMPANIES).forEach(([k,c])=>{
+    h += `<button class="filter ${companyFilter===k?'active':''}" data-cf="${k}"><span class="dot" style="background:${c.color}"></span>${c.label} (${cnt(k)})</button>`;
+  });
+  $('vehCompanyFilters').innerHTML=h;
+  $('vehCompanyFilters').querySelectorAll('.filter').forEach(b=> b.addEventListener('click',()=>{ companyFilter=b.dataset.cf; renderVehicles(); }));
+}
 function renderVehFilters(){
-  const counts = (k)=> state.vehicles.filter(v=>v.status===k).length;
-  let h = `<button class="filter ${vehFilter==='all'?'active':''}" data-f="all">Všetky (${state.vehicles.filter(v=>v.status!=='vybavene').length})</button>`;
+  const counts = (k)=> state.vehicles.filter(v=>v.status===k && (companyFilter==='all'||companyOf(v)===companyFilter)).length;
+  let h = `<button class="filter ${vehFilter==='all'?'active':''}" data-f="all">Všetky (${state.vehicles.filter(v=>v.status!=='vybavene' && (companyFilter==='all'||companyOf(v)===companyFilter)).length})</button>`;
   Object.entries(STATUSES).forEach(([k,s])=>{
     h += `<button class="filter ${vehFilter===k?'active':''}" data-f="${k}"><span class="dot" style="background:${s.color}"></span>${s.label} (${counts(k)})</button>`;
   });
@@ -831,7 +849,7 @@ function vehCard(v){
   const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'—'; };
   return `<div class="card${selectedVeh.has(v.id)?' card-selected':''}" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'}</div>
+        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'} <span class="company-badge" style="background:${COMPANIES[companyOf(v)].color}">${COMPANIES[companyOf(v)].label}</span></div>
         <div class="iconbtns">
           <button class="iconbtn" data-edit="${v.id}">✎</button>
           <button class="iconbtn" data-del="${v.id}">🗑</button>
@@ -858,8 +876,10 @@ function vehCard(v){
 }
 
 function renderVehicles(){
+  renderCompanyFilters();
   renderVehFilters();
   let list = vehFilter==='all'? state.vehicles.filter(v=>v.status!=='vybavene') : state.vehicles.filter(v=>v.status===vehFilter);
+  if(companyFilter!=='all') list = list.filter(v=>companyOf(v)===companyFilter);
   const byOrder=(a,b)=>(a.order??0)-(b.order??0);
   const zone=(p)=>{
     const arr=list.filter(v=>(v.priority||'med')===p).sort(byOrder);
@@ -932,7 +952,7 @@ function startEditVeh(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
   $('vModel').value=v.model||''; $('vVin').value=v.vin||''; $('vFrom').value=v.from||''; $('vTo').value=v.to||'';
   $('vStatus').value=v.status||'aktualne'; refreshDriverSelect(); $('vDriver').value=v.driverId||'';
-  $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||'';
+  $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||''; $('vCompany').value=companyOf(v);
   editVeh=id; $('vehFormTitle').textContent='Upraviť vozidlo'; $('vSubmit').textContent='Uložiť'; $('vCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
