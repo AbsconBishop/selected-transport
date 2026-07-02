@@ -224,6 +224,12 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
 ::-webkit-scrollbar-thumb{background:#2c3037; border-radius:6px; border:2px solid var(--bg);}
 ::-webkit-scrollbar-track{background:transparent;}
 
+.ov-row{display:grid; grid-template-columns:1fr auto auto; gap:14px; padding:8px 2px; border-bottom:1px solid var(--line); font-size:13.5px; align-items:center;}
+.ov-row:last-child{border-bottom:none;}
+.ov-row strong{font-weight:700;}
+.ov-head{font-family:'Fraunces',serif; font-size:15px; font-weight:600; margin:18px 0 4px;}
+.ov-plus{color:#7ecfa4; font-weight:700;} .ov-minus{color:#ef8f8f; font-weight:700;}
+
 @media(max-width:720px){
   .grid{grid-template-columns:repeat(2,1fr);}
   .result{flex-direction:column; gap:14px;}
@@ -305,6 +311,7 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
     <button class="tab active" data-tab="vehicles">Vozidlá</button>
     <button class="tab" data-tab="drivers">Vodiči</button>
     <button class="tab" data-tab="calc">Kalkulačka trás</button>
+    <button class="tab" data-tab="stats">Prehľad</button>
   </nav>
 
   <!-- ============ VOZIDLÁ ============ -->
@@ -401,6 +408,17 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
       </div>
     </div>
     <div id="rtList"></div>
+  </section>
+
+  <!-- ============ PREHĽAD ============ -->
+  <section id="tab-stats" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px">
+        <h3 class="form-title" style="margin:0">Prehľad prepráv</h3>
+        <select class="in" id="ovMonth" style="width:auto; min-width:170px"></select>
+      </div>
+      <div id="ovBody"></div>
+    </div>
   </section>
 </div>
 
@@ -547,11 +565,11 @@ const M={
     to:v=>({id:v.id, model:v.model||'', vin:v.vin||'', from_place:v.from||'', to_place:v.to||'', status:v.status||'aktualne',
       driver_id:v.driverId||'', note:v.note||'', in_transit:!!v.inTransit, start_date:v.startDate||'', end_date:v.endDate||'',
       transport_price:num(v.transportPrice), cost_price:num(v.costPrice), priority:v.priority||'med', sort_order:num(v.order), company:v.company||'selected',
-      distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||''}),
+      distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||'', deleted_at_ms:v.deletedAt||null}),
     from:r=>({id:r.id, model:r.model||'', vin:r.vin||'', from:r.from_place||'', to:r.to_place||'', status:r.status||'aktualne',
       driverId:r.driver_id||'', note:r.note||'', inTransit:!!r.in_transit, startDate:r.start_date||'', endDate:r.end_date||'',
       transportPrice:num(r.transport_price), costPrice:num(r.cost_price), priority:r.priority||'med', order:num(r.sort_order), company:r.company||'selected',
-      distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||''})
+      distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||'', deletedAt:r.deleted_at_ms?num(r.deleted_at_ms):0})
   },
   drivers:{
     to:d=>({id:d.id, name:d.name||'', type:d.type||'interny', tier:d.tier||'hlavny', rate:num(d.rate),
@@ -614,7 +632,13 @@ function queueOp(op){ outbox.push(op); saveOutbox(); syncBadge(); flushOutbox();
 /* ---- granulárne zápisy (per záznam, žiadne prepisovanie cudzích zmien) ---- */
 function saveVehicle(v){ queueOp({t:'up', table:'vehicles', rows:[M.vehicles.to(v)]}); renderStats(); }
 function saveVehicles(arr){ if(arr.length) queueOp({t:'up', table:'vehicles', rows:arr.map(M.vehicles.to)}); renderStats(); }
-function deleteVehicleRow(id){ queueOp({t:'del', table:'vehicles', id:id}); renderStats(); }
+function deleteVehicleRow(id){
+  const v=state.vehicles.find(x=>x.id===id);
+  const row=v?M.vehicles.to(v):{id:id};
+  row.deleted_at_ms=Date.now();
+  queueOp({t:'up', table:'vehicles', rows:[row]});
+  renderStats();
+}
 function saveDriver(d){ queueOp({t:'up', table:'drivers', rows:[M.drivers.to(d)]}); renderStats(); }
 function saveDrivers(arr){ if(arr.length) queueOp({t:'up', table:'drivers', rows:arr.map(M.drivers.to)}); renderStats(); }
 function deleteDriverRow(id){ queueOp({t:'del', table:'drivers', id:id}); renderStats(); }
@@ -625,7 +649,7 @@ function saveSettings(){ queueOp({t:'up', table:'app_settings', rows:[{id:'main'
 async function loadAll(){
   dbg('4) Načítavam dáta z databázy…');
   const [v,d,r,s]=await Promise.all([
-    rest('vehicles?select=*').then(x=>x.json()),
+    rest('vehicles?select=*&deleted_at_ms=is.null').then(x=>x.json()),
     rest('drivers?select=*').then(x=>x.json()),
     rest('routes?select=*&order=created_at_ms.desc').then(x=>x.json()),
     rest('app_settings?id=eq.main&select=data').then(x=>x.json())
@@ -678,8 +702,8 @@ $('selDelete').addEventListener('click', async ()=>{
   const n=selectedVeh.size; if(!n) return;
   if(!confirm('Vymazať '+n+' označených áut? Túto akciu nie je možné vrátiť späť.')) return;
   const ids=[...selectedVeh];
-  state.vehicles=state.vehicles.filter(v=>!selectedVeh.has(v.id));
   ids.forEach(deleteVehicleRow);
+  state.vehicles=state.vehicles.filter(v=>!selectedVeh.has(v.id));
   selectedVeh.clear(); updateSelBar(); renderVehicles();
 });
 const EN_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -778,7 +802,7 @@ $('ntfyTest').addEventListener('click', async ()=>{
   await notify('SELECTED Transport','Testovacie oznámenie ✓');
   alert('Test odoslaný. Ak máš v appke ntfy prihlásený kanál „'+t+'", o chvíľu ti príde.');
 });
-function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); recompute(); }
+function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); recompute(); }
 function readRate(){ return parseFloat(($('cRate').value||'').replace(',','.'))||0; }
 
 function editingNow(){ const a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='SELECT'||a.tagName==='TEXTAREA'); }
@@ -801,13 +825,80 @@ function renderStats(){
 }
 
 /* ---------------- tabs ---------------- */
+
+/* ---------------- prehľad ---------------- */
+let ovSel='';
+const monthKey=iso=>iso?String(iso).slice(0,7):'';
+function monthLabel(k){ const [y,m]=k.split('-'); const N=['január','február','marec','apríl','máj','jún','júl','august','september','október','november','december']; return (N[+m-1]||k)+' '+y; }
+function driverName(id){ const d=state.drivers.find(x=>x.id===id); return d?d.name:''; }
+function renderOverview(){
+  const body=$('ovBody'); if(!body) return;
+  const done=state.vehicles.filter(v=>v.status==='vybavene'&&v.endDate);
+  const months=[...new Set(done.map(v=>monthKey(v.endDate)))].filter(Boolean).sort().reverse();
+  if(!ovSel || (ovSel!=='all' && !months.includes(ovSel))) ovSel=months[0]||'all';
+  $('ovMonth').innerHTML =
+    months.map(k=>`<option value="${k}"${k===ovSel?' selected':''}>${monthLabel(k)}</option>`).join('')
+    + `<option value="all"${ovSel==='all'?' selected':''}>Celá história</option>`;
+
+  const items = ovSel==='all' ? done : done.filter(v=>monthKey(v.endDate)===ovSel);
+  if(!items.length){
+    body.innerHTML='<div class="empty">Za toto obdobie nie sú žiadne vybavené prepravy.</div>';
+    return;
+  }
+  const S=(arr,f)=>arr.reduce((s,v)=>s+(Number(f(v))||0),0);
+  const priced=items.filter(v=>Number(v.transportPrice)>0&&Number(v.costPrice)>0);
+  const revenue=S(items,v=>v.transportPrice);
+  const cost=S(items,v=>v.costPrice);
+  const margin=S(priced,v=>v.transportPrice-v.costPrice);
+  const noPrice=items.length-priced.length;
+  const km=S(items,v=>v.distance);
+  const cls=n=>n>=0?'ov-plus':'ov-minus';
+  const sgn=n=>(n>=0?'+':'−')+eur(Math.abs(n));
+
+  /* firmy */
+  const byCompany={};
+  items.forEach(v=>{ const c=companyOf(v); (byCompany[c]=byCompany[c]||{n:0,m:0}); byCompany[c].n++;
+    if(Number(v.transportPrice)>0&&Number(v.costPrice)>0) byCompany[c].m+=v.transportPrice-v.costPrice; });
+
+  /* vodiči */
+  const byDrv={};
+  items.forEach(v=>{ const k=v.driverId||''; (byDrv[k]=byDrv[k]||{n:0,m:0,km:0}); byDrv[k].n++;
+    byDrv[k].km+=Number(v.distance)||0;
+    if(Number(v.transportPrice)>0&&Number(v.costPrice)>0) byDrv[k].m+=v.transportPrice-v.costPrice; });
+  const drvRows=Object.entries(byDrv)
+    .map(([id,x])=>({name:id?(driverName(id)||'(zmazaný vodič)'):'Bez vodiča', ...x}))
+    .sort((a,b)=>b.n-a.n)
+    .map(d=>`<div class="ov-row"><span>${esc(d.name)}${d.km>0?` <span class="mono" style="color:var(--muted); font-size:12px">· ${Math.round(d.km)} km</span>`:''}</span><span>${d.n}×</span><span class="${cls(d.m)}">${sgn(d.m)}</span></div>`)
+    .join('');
+
+  const compRow=Object.entries(byCompany)
+    .map(([c,x])=>`<span class="tag">${esc(COMPANIES[c].label)}: <strong>${x.n}×</strong> <span class="${cls(x.m)}">${sgn(x.m)}</span></span>`)
+    .join(' ');
+
+  body.innerHTML=`
+    <div class="result" style="border-top:none; padding-top:4px; margin-top:6px">
+      <div class="res"><div class="res-lbl">Odvezené autá</div><div class="res-val big">${items.length}</div></div>
+      <div class="res"><div class="res-lbl">Tržby (klient)</div><div class="res-val">${eur(revenue)}</div></div>
+      <div class="res"><div class="res-lbl">Náklady</div><div class="res-val">${eur(cost)}</div></div>
+      <div class="res"><div class="res-lbl">Marža</div><div class="res-val ${cls(margin)}">${sgn(margin)}</div></div>
+    </div>
+    <div class="result-sub">${km>0?`${Math.round(km).toLocaleString('sk-SK')} km spolu${priced.length&&km>0?` · marža ${(margin/km).toLocaleString('sk-SK',{minimumFractionDigits:2,maximumFractionDigits:2})} €/km`:''} · `:''}${noPrice>0?`${noPrice} ${noPrice===1?'auto':'autá/áut'} bez zadaných cien (v maržiach chýbajú)`:'všetky autá majú zadané ceny'}</div>
+    <div class="ov-head">Firmy</div>
+    <div class="meta" style="margin-top:4px">${compRow}</div>
+    <div class="ov-head">Vodiči</div>
+    ${drvRows||'<div class="drv-col-empty">Žiadne priradenia.</div>'}
+    <div class="result-sub" style="margin-top:16px">Aktuálny stav: ${state.vehicles.filter(v=>v.status==='aktualne').length} aktuálne · ${state.vehicles.filter(v=>v.status==='tyzdne').length} o 1–2 týždne · ${state.vehicles.filter(v=>v.inTransit).length} v preprave</div>`;
+}
+$('ovMonth').addEventListener('change',()=>{ ovSel=$('ovMonth').value; renderOverview(); });
+
 document.querySelectorAll('.tab').forEach(t=>{
   t.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    ['vehicles','drivers','calc'].forEach(n=>$('tab-'+n).classList.add('hidden'));
+    ['vehicles','drivers','calc','stats'].forEach(n=>$('tab-'+n).classList.add('hidden'));
     $('tab-'+t.dataset.tab).classList.remove('hidden');
     if(t.dataset.tab==='calc'){ ensureMap(); }
+    if(t.dataset.tab==='stats'){ renderOverview(); }
   });
 });
 
@@ -921,7 +1012,7 @@ function renderVehicles(){
         ? '<div class="list">'+[...list].sort(byOrder).map(vehCard).join('')+'</div>'
         : '<div id="vehZones">'+zone('high')+zone('med')+zone('low')+'</div>');
 
-  $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.del); if(v && !confirm('Vymazať „'+(v.model||'vozidlo')+'“? Akcia je nenávratná.')) return; state.vehicles=state.vehicles.filter(x=>x.id!==b.dataset.del); deleteVehicleRow(b.dataset.del); renderVehicles(); }));
+  $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.del); if(v && !confirm('Vymazať „'+(v.model||'vozidlo')+'“? Akcia je nenávratná.')) return; deleteVehicleRow(b.dataset.del); state.vehicles=state.vehicles.filter(x=>x.id!==b.dataset.del); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene'){ v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); } saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; saveVehicle(v); renderVehicles();} }));
@@ -959,7 +1050,7 @@ async function onVehicleZoneDrop(){
 }
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===name));
-  ['vehicles','drivers','calc'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
+  ['vehicles','drivers','calc','stats'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
 }
 async function showVehicleOnMap(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
