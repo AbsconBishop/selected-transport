@@ -21,7 +21,7 @@
 :root{
   --bg:#0e0f11; --panel:#16181c; --panel2:#1e2126; --line:#282c33;
   --ink:#f1efe9; --ink2:#c8c6bf; --muted:#8b8f97;
-  --gold:#f1efe9; --gold-2:#ffffff; --gold-dim:rgba(241,239,233,.10);
+  --gold:#b691f0; --gold-2:#cbaef7; --gold-dim:rgba(182,145,240,.15);
   --ok:#55b184; --warn:#dfae3f; --bad:#e26060;
 }
 *{box-sizing:border-box;}
@@ -29,13 +29,13 @@ html{color-scheme:dark;}
 body{
   margin:0; font-family:'Manrope',system-ui,sans-serif;
   background:
-    radial-gradient(1100px 600px at 85% -12%, rgba(255,255,255,.05) 0%, transparent 60%),
+    radial-gradient(1100px 600px at 85% -12%, rgba(182,145,240,.07) 0%, transparent 60%),
     var(--bg);
   color:var(--ink); min-height:100vh; padding:18px; padding-bottom:90px;
   -webkit-font-smoothing:antialiased;
 }
 .mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace; letter-spacing:.5px;}
-::selection{background:#f1efe9; color:#141414;}
+::selection{background:#b691f0; color:#141414;}
 button, input, select{transition:background-color .15s, border-color .15s, color .15s, box-shadow .15s;}
 :focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:6px;}
 @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
@@ -75,7 +75,7 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
 .btn{display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; border:1px solid transparent; font-family:inherit;}
 .btn svg{width:15px; height:15px;}
 .btn-dark{background:linear-gradient(180deg, var(--gold-2), var(--gold)); color:#141414; border-color:var(--gold);}
-.btn-dark:hover{background:var(--gold-2); box-shadow:0 4px 16px rgba(255,255,255,.15);}
+.btn-dark:hover{background:var(--gold-2); box-shadow:0 4px 16px rgba(182,145,240,.30);}
 .btn-dark:disabled{opacity:.35; cursor:not-allowed; box-shadow:none;}
 .btn-ghost{background:transparent; color:var(--ink2); border-color:var(--line);}
 .btn-ghost:hover{border-color:var(--gold); color:var(--gold);}
@@ -460,7 +460,7 @@ const kmF = (n) => new Intl.NumberFormat('sk-SK',{maximumFractionDigits:1}).form
 const esc = (s) => String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const STATUSES = {
-  aktualne:{label:'Aktuálne', color:'#f1efe9', rank:0},
+  aktualne:{label:'Aktuálne', color:'#b691f0', rank:0},
   tyzdne:{label:'O 1–2 týždne', color:'#9ba0a8', rank:1},
   vybavene:{label:'Vybavené', color:'#5f646c', rank:2},
 };
@@ -665,7 +665,7 @@ let state = { drivers:[], vehicles:[], routes:[], settings:{} };
 let editVeh=null, editDrv=null;
 let vehFilter='all';
 let companyFilter='all';
-const COMPANIES={ selected:{label:'SELECTED', color:'#f1efe9'}, transportcars:{label:'TransportCars', color:'#6ba3e8'} };
+const COMPANIES={ selected:{label:'SELECTED', color:'#b691f0'}, transportcars:{label:'TransportCars', color:'#6ba3e8'} };
 function companyOf(v){ return COMPANIES[v.company] ? v.company : 'selected'; }
 let selectedVeh=new Set();
 
@@ -1223,7 +1223,7 @@ function initLeaflet(){
 function initGoogle(){
   gMap=new google.maps.Map(document.getElementById('cMap'),{center:SK_CENTER,zoom:7,mapTypeControl:false,streetViewControl:false,fullscreenControl:false,styles:GREY_STYLE});
   dirService=new google.maps.DirectionsService();
-  dirRenderer=new google.maps.DirectionsRenderer({map:gMap,suppressMarkers:true,polylineOptions:{strokeColor:'#f1efe9',strokeWeight:4,strokeOpacity:.9}});
+  dirRenderer=new google.maps.DirectionsRenderer({map:gMap,suppressMarkers:true,polylineOptions:{strokeColor:'#b691f0',strokeWeight:4,strokeOpacity:.9}});
   gMap.addListener('click',e=>addPointFromMap({lat:e.latLng.lat(),lng:e.latLng.lng()}));
 }
 function updateEngineBadge(){
@@ -1273,9 +1273,9 @@ function refreshMarkers(){
     const last = s.latlng && s.latlng===lastLL;
     if(s.latlng){
       if(engine==='google'){
-        if(s.marker){ s.marker.setPosition(s.latlng); s.marker.setLabel({text:LETTER(i),color:last?'#f1efe9':'#141414',fontWeight:'700'}); s.marker.setIcon({path:google.maps.SymbolPath.CIRCLE,scale:13,fillColor:last?'#0e0f11':'#f1efe9',fillOpacity:1,strokeColor:last?'#f1efe9':'#0e0f11',strokeWeight:2}); }
+        if(s.marker){ s.marker.setPosition(s.latlng); s.marker.setLabel({text:LETTER(i),color:last?'#b691f0':'#141414',fontWeight:'700'}); s.marker.setIcon({path:google.maps.SymbolPath.CIRCLE,scale:13,fillColor:last?'#0e0f11':'#b691f0',fillOpacity:1,strokeColor:last?'#b691f0':'#0e0f11',strokeWeight:2}); }
         else{
-          s.marker=new google.maps.Marker({position:s.latlng,map:gMap,draggable:true,label:{text:LETTER(i),color:last?'#f1efe9':'#141414',fontWeight:'700'},icon:{path:google.maps.SymbolPath.CIRCLE,scale:13,fillColor:last?'#0e0f11':'#f1efe9',fillOpacity:1,strokeColor:last?'#f1efe9':'#0e0f11',strokeWeight:2}});
+          s.marker=new google.maps.Marker({position:s.latlng,map:gMap,draggable:true,label:{text:LETTER(i),color:last?'#b691f0':'#141414',fontWeight:'700'},icon:{path:google.maps.SymbolPath.CIRCLE,scale:13,fillColor:last?'#0e0f11':'#b691f0',fillOpacity:1,strokeColor:last?'#b691f0':'#0e0f11',strokeWeight:2}});
           s.marker.addListener('dragend',e=>{ s.latlng={lat:e.latLng.lat(),lng:e.latLng.lng()}; if(!s.label) s.label=s.latlng.lat.toFixed(4)+', '+s.latlng.lng.toFixed(4); renderStops(); refreshMarkers(); computeRoute(); });
         }
       } else {
@@ -1353,7 +1353,7 @@ async function computeRoute(){
         const coords=cs.map(c=>[c[1],c[0]]);
         if(coords.length && distKm>0){
           if(routeLine) map.removeLayer(routeLine);
-          routeLine=L.polyline(coords,{color:'#f1efe9',weight:4,opacity:.9}).addTo(map);
+          routeLine=L.polyline(coords,{color:'#b691f0',weight:4,opacity:.9}).addTo(map);
           map.fitBounds(routeLine.getBounds(),{padding:[40,40]}); drawn=true;
         }
       }
@@ -1369,7 +1369,7 @@ async function computeRoute(){
       distKm=data.routes[0].distance/1000;
       const coords=data.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);
       if(routeLine) map.removeLayer(routeLine);
-      routeLine=L.polyline(coords,{color:'#f1efe9',weight:4,opacity:.9}).addTo(map);
+      routeLine=L.polyline(coords,{color:'#b691f0',weight:4,opacity:.9}).addTo(map);
       map.fitBounds(routeLine.getBounds(),{padding:[40,40]}); drawn=true;
     }
   }catch(e){}
