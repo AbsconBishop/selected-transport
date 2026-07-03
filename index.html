@@ -230,6 +230,29 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
 .ov-head{font-family:'Fraunces',serif; font-size:15px; font-weight:600; margin:18px 0 4px;}
 .ov-plus{color:#7ecfa4; font-weight:700;} .ov-minus{color:#ef8f8f; font-weight:700;}
 
+.cal-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;}
+.cal-title{font-family:'Fraunces',serif; font-size:19px; font-weight:600; letter-spacing:.3px; text-transform:capitalize;}
+.cal-nav{display:flex; gap:6px;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+.cal-dow{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; text-align:center; padding:4px 0 8px; font-weight:700;}
+.cal-cell{background:var(--panel2); border:1px solid var(--line); border-radius:9px; min-height:74px; padding:5px 6px; cursor:pointer; display:flex; flex-direction:column; gap:3px; overflow:hidden;}
+.cal-cell:hover{border-color:#3a3f47;}
+.cal-cell.other{opacity:.32; cursor:default;}
+.cal-cell.today .cal-daynum{color:var(--gold); font-weight:800;}
+.cal-cell.selected{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold-dim);}
+.cal-daynum{font-size:11.5px; color:var(--ink2); font-weight:600; line-height:1;}
+.cal-chip{font-size:10.5px; line-height:1.25; padding:2px 5px; border-radius:5px; background:var(--panel); border-left:3px solid var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--ink2); font-weight:600;}
+.cal-chip.done{opacity:.4;}
+.cal-chip.clash{border-left-color:var(--bad); color:#ef8f8f;}
+.cal-more{font-size:10px; color:var(--muted); font-weight:700;}
+.cal-legend{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
+.cal-legend span{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted);}
+.cal-legend i{width:9px; height:9px; border-radius:50%; display:inline-block;}
+@media(max-width:720px){
+  .cal-cell{min-height:52px; padding:4px;}
+  .cal-chip{font-size:0; padding:0; height:5px; border-left:none; border-radius:3px;}
+}
+
 @media(max-width:720px){
   .grid{grid-template-columns:repeat(2,1fr);}
   .result{flex-direction:column; gap:14px;}
@@ -311,6 +334,7 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
     <button class="tab active" data-tab="vehicles">Vozidlá</button>
     <button class="tab" data-tab="drivers">Vodiči</button>
     <button class="tab" data-tab="calc">Kalkulačka trás</button>
+    <button class="tab" data-tab="cal">Kalendár</button>
     <button class="tab" data-tab="stats">Prehľad</button>
   </nav>
 
@@ -408,6 +432,23 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
       </div>
     </div>
     <div id="rtList"></div>
+  </section>
+
+  <!-- ============ KALENDÁR ============ -->
+  <section id="tab-cal" class="hidden">
+    <div class="card">
+      <div class="cal-head">
+        <h3 class="form-title" style="margin:0" id="calTitle"></h3>
+        <div class="cal-nav">
+          <button class="btn btn-ghost" id="calPrev" style="padding:7px 13px">‹</button>
+          <button class="btn btn-ghost" id="calToday" style="padding:7px 13px">Dnes</button>
+          <button class="btn btn-ghost" id="calNext" style="padding:7px 13px">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend" id="calLegend"></div>
+      <div id="calDetail" style="margin-top:16px"></div>
+    </div>
   </section>
 
   <!-- ============ PREHĽAD ============ -->
@@ -802,7 +843,7 @@ $('ntfyTest').addEventListener('click', async ()=>{
   await notify('SELECTED Transport','Testovacie oznámenie ✓');
   alert('Test odoslaný. Ak máš v appke ntfy prihlásený kanál „'+t+'", o chvíľu ti príde.');
 });
-function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); recompute(); }
+function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); renderCalendar(); recompute(); }
 function readRate(){ return parseFloat(($('cRate').value||'').replace(',','.'))||0; }
 
 function editingNow(){ const a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='SELECT'||a.tagName==='TEXTAREA'); }
@@ -825,6 +866,63 @@ function renderStats(){
 }
 
 /* ---------------- tabs ---------------- */
+
+
+/* ---------------- kalendár ---------------- */
+const DRV_COLORS=['#b691f0','#6ba3e8','#55b184','#dfae3f','#e26060','#5bc8c8','#e88ac3','#a8b46a'];
+function driverColor(id){ if(!id) return '#8b8f97'; const i=state.drivers.findIndex(d=>d.id===id); return i<0?'#8b8f97':DRV_COLORS[i%DRV_COLORS.length]; }
+let calYM='', calDay='';
+function ymOf(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1); }
+function renderCalendar(){
+  const grid=$('calGrid'); if(!grid) return;
+  if(!calYM) calYM=ymOf(new Date());
+  const [Y,Mo]=calYM.split('-').map(Number);
+  $('calTitle').textContent=monthLabel(calYM);
+  const first=new Date(Y,Mo-1,1), dim=new Date(Y,Mo,0).getDate();
+  const off=(first.getDay()+6)%7; // pondelok prvý
+  const inMonth=state.vehicles.filter(v=>v.startDate && monthKey(v.startDate)===calYM);
+  const byDay={}; inMonth.forEach(v=>{ (byDay[v.startDate]=byDay[v.startDate]||[]).push(v); });
+  const today=todayISO();
+  const p=n=>String(n).padStart(2,'0');
+  let html='<div class="cal-dow">Po</div><div class="cal-dow">Ut</div><div class="cal-dow">St</div><div class="cal-dow">Št</div><div class="cal-dow">Pi</div><div class="cal-dow">So</div><div class="cal-dow">Ne</div>';
+  for(let i=0;i<off;i++) html+='<div class="cal-cell other"></div>';
+  for(let d=1;d<=dim;d++){
+    const iso=Y+'-'+p(Mo)+'-'+p(d);
+    const cars=(byDay[iso]||[]).slice().sort((a,b)=>String(a.driverId).localeCompare(String(b.driverId)));
+    const clashIds=new Set();
+    const perDrv={}; cars.forEach(v=>{ if(v.driverId&&v.status!=='vybavene'){ (perDrv[v.driverId]=perDrv[v.driverId]||[]).push(v); } });
+    Object.values(perDrv).forEach(a=>{ if(a.length>1) a.forEach(v=>clashIds.add(v.id)); });
+    html+=`<div class="cal-cell${iso===today?' today':''}${iso===calDay?' selected':''}" data-calday="${iso}">
+      <div class="cal-daynum">${d}${clashIds.size?' ⚠️':''}</div>${cars.slice(0,3).map(v=>`<div class="cal-chip${v.status==='vybavene'?' done':''}${clashIds.has(v.id)?' clash':''}"${clashIds.has(v.id)?'':` style="border-left-color:${driverColor(v.driverId)}"`}>${esc(v.model||'auto')}</div>`).join('')}${cars.length>3?`<div class="cal-more">+${cars.length-3} ďalšie</div>`:''}
+    </div>`;
+  }
+  grid.innerHTML=html;
+  /* legenda vodičov aktívnych v mesiaci */
+  const drvIds=[...new Set(inMonth.map(v=>v.driverId).filter(Boolean))];
+  $('calLegend').innerHTML=drvIds.map(id=>`<span><i style="background:${driverColor(id)}"></i>${esc(driverName(id)||'?')}</span>`).join('')+(inMonth.some(v=>!v.driverId)?'<span><i style="background:#8b8f97"></i>Bez vodiča</span>':'');
+  grid.querySelectorAll('[data-calday]').forEach(c=>c.addEventListener('click',()=>{ calDay=(calDay===c.dataset.calday?'':c.dataset.calday); renderCalendar(); }));
+  renderCalDetail(byDay);
+}
+function renderCalDetail(byDay){
+  const el=$('calDetail'); if(!el) return;
+  if(!calDay || monthKey(calDay)!==calYM){ el.innerHTML=inMonthHint(byDay); return; }
+  const cars=byDay[calDay]||[];
+  if(!cars.length){ el.innerHTML='<div class="drv-col-empty">'+fmtDate(calDay)+': žiadne prepravy.</div>'; return; }
+  el.innerHTML='<div class="ov-head">'+fmtDate(calDay)+'</div>'+cars.map(v=>`
+    <div class="ov-row" style="grid-template-columns:auto 1fr auto">
+      <i style="width:9px;height:9px;border-radius:50%;display:inline-block;background:${driverColor(v.driverId)}"></i>
+      <span><strong>${esc(v.model||'auto')}</strong>${(v.from||v.to)?` <span style="color:var(--muted)">· ${esc(v.from||'?')} → ${esc(v.to||'?')}</span>`:''}<br><span style="color:var(--muted); font-size:12px">${esc(v.driverId?(driverName(v.driverId)||''):'bez vodiča')} · ${STATUSES[v.status]?STATUSES[v.status].label:v.status}${v.inTransit?' · v preprave 🚚':''}</span></span>
+      <button class="btn btn-ghost" data-caledit="${v.id}" style="padding:6px 12px; font-size:12.5px">Upraviť</button>
+    </div>`).join('');
+  el.querySelectorAll('[data-caledit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.caledit); switchTab('vehicles'); window.scrollTo({top:0,behavior:'smooth'}); }));
+}
+function inMonthHint(byDay){
+  const n=Object.values(byDay).reduce((s,a)=>s+a.length,0);
+  return '<div class="result-sub">'+(n?`${n} preprav tento mesiac — klikni na deň pre detail.`:'Tento mesiac nemá žiadne prepravy so zadaným začiatkom.')+'</div>';
+}
+$('calPrev').addEventListener('click',()=>{ const [y,m]=calYM.split('-').map(Number); calYM=ymOf(new Date(y,m-2,1)); calDay=''; renderCalendar(); });
+$('calNext').addEventListener('click',()=>{ const [y,m]=calYM.split('-').map(Number); calYM=ymOf(new Date(y,m,1)); calDay=''; renderCalendar(); });
+$('calToday').addEventListener('click',()=>{ calYM=ymOf(new Date()); calDay=todayISO(); renderCalendar(); });
 
 /* ---------------- prehľad ---------------- */
 let ovSel='';
@@ -881,10 +979,11 @@ document.querySelectorAll('.tab').forEach(t=>{
   t.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    ['vehicles','drivers','calc','stats'].forEach(n=>$('tab-'+n).classList.add('hidden'));
+    ['vehicles','drivers','calc','stats','cal'].forEach(n=>$('tab-'+n).classList.add('hidden'));
     $('tab-'+t.dataset.tab).classList.remove('hidden');
     if(t.dataset.tab==='calc'){ ensureMap(); }
     if(t.dataset.tab==='stats'){ renderOverview(); }
+    if(t.dataset.tab==='cal'){ renderCalendar(); }
   });
 });
 
@@ -1057,7 +1156,7 @@ async function onVehicleZoneDrop(){
 }
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===name));
-  ['vehicles','drivers','calc','stats'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
+  ['vehicles','drivers','calc','stats','cal'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
 }
 async function showVehicleOnMap(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
