@@ -565,11 +565,11 @@ const M={
     to:v=>({id:v.id, model:v.model||'', vin:v.vin||'', from_place:v.from||'', to_place:v.to||'', status:v.status||'aktualne',
       driver_id:v.driverId||'', note:v.note||'', in_transit:!!v.inTransit, start_date:v.startDate||'', end_date:v.endDate||'',
       transport_price:num(v.transportPrice), cost_price:num(v.costPrice), priority:v.priority||'med', sort_order:num(v.order), company:v.company||'selected',
-      distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||'', deleted_at_ms:v.deletedAt||null}),
+      distance:v.distance?num(v.distance):null, created_at_ms:v.createdAt||Date.now(), created_by:v.createdBy||'', deleted_at_ms:v.deletedAt||null, updated_at_ms:Date.now(), updated_by:currentEmail()}),
     from:r=>({id:r.id, model:r.model||'', vin:r.vin||'', from:r.from_place||'', to:r.to_place||'', status:r.status||'aktualne',
       driverId:r.driver_id||'', note:r.note||'', inTransit:!!r.in_transit, startDate:r.start_date||'', endDate:r.end_date||'',
       transportPrice:num(r.transport_price), costPrice:num(r.cost_price), priority:r.priority||'med', order:num(r.sort_order), company:r.company||'selected',
-      distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||'', deletedAt:r.deleted_at_ms?num(r.deleted_at_ms):0})
+      distance:r.distance==null?0:num(r.distance), createdAt:num(r.created_at_ms), createdBy:r.created_by||'', deletedAt:r.deleted_at_ms?num(r.deleted_at_ms):0, updatedAt:num(r.updated_at_ms), updatedBy:r.updated_by||''})
   },
   drivers:{
     to:d=>({id:d.id, name:d.name||'', type:d.type||'interny', tier:d.tier||'hlavny', rate:num(d.rate),
@@ -830,6 +830,15 @@ function renderStats(){
 let ovSel='';
 const monthKey=iso=>iso?String(iso).slice(0,7):'';
 const vehMonth=v=>monthKey(v.startDate||v.endDate);
+function driverCollisions(driverId, dateISO, exceptId){
+  if(!driverId || !dateISO) return [];
+  return state.vehicles.filter(v=>v.id!==exceptId && v.driverId===driverId && v.startDate===dateISO && v.status!=='vybavene');
+}
+function collisionConfirm(driverId, dateISO, exceptId){
+  const c=driverCollisions(driverId, dateISO, exceptId);
+  if(!c.length) return true;
+  return confirm((driverName(driverId)||'Vodič')+' má '+fmtDate(dateISO)+' už priradené: '+c.map(v=>v.model||'auto').join(', ')+'.\n\nPriradiť aj tak?');
+}
 function monthLabel(k){ const [y,m]=k.split('-'); const N=['január','február','marec','apríl','máj','jún','júl','august','september','október','november','december']; return (N[+m-1]||k)+' '+y; }
 function driverName(id){ const d=state.drivers.find(x=>x.id===id); return d?d.name:''; }
 function renderOverview(){
@@ -907,6 +916,7 @@ function refreshDriverSelect(){ $('vDriver').innerHTML = driverOptions($('vDrive
 
 function todayISO(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d&&m&&y?`${d}.${m}.${y}`:iso; }
+function fmtMs(ms){ if(!ms) return ''; const d=new Date(ms); const p=n=>String(n).padStart(2,'0'); return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear(); }
 function vehFormReset(){
   ['vModel','vVin','vFrom','vTo','vNote','vStart','vPrice','vCost'].forEach(i=>$(i).value='');
   $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false; $('vCompany').value='selected';
@@ -919,6 +929,7 @@ $('vSubmit').addEventListener('click', async ()=>{
     status:$('vStatus').value, driverId:$('vDriver').value, note:$('vNote').value, company:$('vCompany').value,
     inTransit:$('vInTransit').checked, startDate:$('vStart').value, transportPrice:parseFloat(($('vPrice').value||'').replace(',','.'))||0, costPrice:parseFloat(($('vCost').value||'').replace(',','.'))||0 };
   if(data.inTransit && !data.startDate) data.startDate=todayISO();
+  if(data.driverId && !collisionConfirm(data.driverId, data.startDate, editVeh)) return;
   if(editVeh){
     const i=state.vehicles.findIndex(v=>v.id===editVeh);
     if(i>-1){ state.vehicles[i]={...state.vehicles[i],...data}; saveVehicle(state.vehicles[i]); }
@@ -981,9 +992,9 @@ function vehCard(v){
       </div>
       <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> Aktuálne v preprave</label>
       ${v.driverId?`<div class="driver-line">Priradený: <strong>${dName(v.driverId)}</strong></div>`:''}
-      ${(v.startDate||v.endDate)?`<div class="dates">🚚 ${v.startDate?fmtDate(v.startDate):'—'}${v.endDate?` &nbsp;→&nbsp; ✓ ${fmtDate(v.endDate)}`:''}</div>`:''}
+      ${(v.startDate||v.endDate)?`<div class="dates">🚚 ${v.startDate?fmtDate(v.startDate):'—'}${(v.status!=='vybavene'&&driverCollisions(v.driverId,v.startDate,v.id).length)?` <span title="${esc('Kolízia: '+driverCollisions(v.driverId,v.startDate,v.id).map(x=>x.model||'auto').join(', '))}">⚠️</span>`:''}${v.endDate?` &nbsp;→&nbsp; ✓ ${fmtDate(v.endDate)}`:''}</div>`:''}
       ${v.note?`<div class="note">📝 ${esc(v.note)}</div>`:''}
-      ${v.createdBy?`<div class="added-by">pridal ${esc(nameFor(v.createdBy))}</div>`:''}
+      ${(v.createdBy||v.updatedBy)?`<div class="added-by">${v.createdBy?`pridal ${esc(nameFor(v.createdBy))}`:''}${(v.updatedBy&&v.updatedAt)?`${v.createdBy?' · ':''}upravil ${esc(nameFor(v.updatedBy))} ${fmtMs(v.updatedAt)}`:''}</div>`:''}
       ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}</div>${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="Označiť ako vybavené">✓</button>`:''}`:''}
     </div>`;
 }
@@ -1010,7 +1021,7 @@ function renderVehicles(){
   $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.del); if(v && !confirm('Vymazať „'+(v.model||'vozidlo')+'“? Akcia je nenávratná.')) return; deleteVehicleRow(b.dataset.del); state.vehicles=state.vehicles.filter(x=>x.id!==b.dataset.del); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene'){ v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); } saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
-  $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){v.driverId=sel.value; saveVehicle(v); renderVehicles();} }));
+  $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){ if(sel.value && !collisionConfirm(sel.value, v.startDate, v.id)){ sel.value=v.driverId||''; return; } v.driverId=sel.value; saveVehicle(v); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
   $('vehList').querySelectorAll('[data-vmonth]').forEach(b=>b.addEventListener('click',()=>{ vybMonth=b.dataset.vmonth; renderVehicles(); }));
   $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
@@ -1021,7 +1032,7 @@ function renderVehicles(){
     updateSelBar();
   }));
   updateSelBar();
-  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); saveVehicle(v); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ if(c.checked && !v.startDate && v.driverId && !collisionConfirm(v.driverId, todayISO(), v.id)){ c.checked=false; return; } v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); saveVehicle(v); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
     $('vehList').querySelectorAll('.veh-zone').forEach(z=>{
