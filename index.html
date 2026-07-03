@@ -846,46 +846,22 @@ function renderOverview(){
     body.innerHTML='<div class="empty">Za toto obdobie nie sú žiadne vybavené prepravy.</div>';
     return;
   }
-  const S=(arr,f)=>arr.reduce((s,v)=>s+(Number(f(v))||0),0);
-  const priced=items.filter(v=>Number(v.transportPrice)>0&&Number(v.costPrice)>0);
-  const revenue=S(items,v=>v.transportPrice);
-  const cost=S(items,v=>v.costPrice);
-  const margin=S(priced,v=>v.transportPrice-v.costPrice);
-  const noPrice=items.length-priced.length;
-  const km=S(items,v=>v.distance);
-  const cls=n=>n>=0?'ov-plus':'ov-minus';
-  const sgn=n=>(n>=0?'+':'−')+eur(Math.abs(n));
-
-  /* firmy */
-  const byCompany={};
-  items.forEach(v=>{ const c=companyOf(v); (byCompany[c]=byCompany[c]||{n:0,m:0}); byCompany[c].n++;
-    if(Number(v.transportPrice)>0&&Number(v.costPrice)>0) byCompany[c].m+=v.transportPrice-v.costPrice; });
+  const km=items.reduce((s,v)=>s+(Number(v.distance)||0),0);
 
   /* vodiči */
   const byDrv={};
-  items.forEach(v=>{ const k=v.driverId||''; (byDrv[k]=byDrv[k]||{n:0,m:0,km:0}); byDrv[k].n++;
-    byDrv[k].km+=Number(v.distance)||0;
-    if(Number(v.transportPrice)>0&&Number(v.costPrice)>0) byDrv[k].m+=v.transportPrice-v.costPrice; });
+  items.forEach(v=>{ const k=v.driverId||''; (byDrv[k]=byDrv[k]||{n:0,km:0}); byDrv[k].n++; byDrv[k].km+=Number(v.distance)||0; });
   const drvRows=Object.entries(byDrv)
     .map(([id,x])=>({name:id?(driverName(id)||'(zmazaný vodič)'):'Bez vodiča', ...x}))
     .sort((a,b)=>b.n-a.n)
-    .map(d=>`<div class="ov-row"><span>${esc(d.name)}${d.km>0?` <span class="mono" style="color:var(--muted); font-size:12px">· ${Math.round(d.km)} km</span>`:''}</span><span>${d.n}×</span><span class="${cls(d.m)}">${sgn(d.m)}</span></div>`)
+    .map(d=>`<div class="ov-row"><span>${esc(d.name)}</span><span class="mono" style="color:var(--muted); font-size:12px">${d.km>0?Math.round(d.km).toLocaleString('sk-SK')+' km':''}</span><span><strong>${d.n}×</strong></span></div>`)
     .join('');
-
-  const compRow=Object.entries(byCompany)
-    .map(([c,x])=>`<span class="tag">${esc(COMPANIES[c].label)}: <strong>${x.n}×</strong> <span class="${cls(x.m)}">${sgn(x.m)}</span></span>`)
-    .join(' ');
 
   body.innerHTML=`
     <div class="result" style="border-top:none; padding-top:4px; margin-top:6px">
       <div class="res"><div class="res-lbl">Odvezené autá</div><div class="res-val big">${items.length}</div></div>
-      <div class="res"><div class="res-lbl">Tržby (klient)</div><div class="res-val">${eur(revenue)}</div></div>
-      <div class="res"><div class="res-lbl">Náklady</div><div class="res-val">${eur(cost)}</div></div>
-      <div class="res"><div class="res-lbl">Marža</div><div class="res-val ${cls(margin)}">${sgn(margin)}</div></div>
+      ${km>0?`<div class="res"><div class="res-lbl">Najazdené km</div><div class="res-val">${Math.round(km).toLocaleString('sk-SK')} km</div></div>`:''}
     </div>
-    <div class="result-sub">${km>0?`${Math.round(km).toLocaleString('sk-SK')} km spolu${priced.length&&km>0?` · marža ${(margin/km).toLocaleString('sk-SK',{minimumFractionDigits:2,maximumFractionDigits:2})} €/km`:''} · `:''}${noPrice>0?`${noPrice} ${noPrice===1?'auto':'autá/áut'} bez zadaných cien (v maržiach chýbajú)`:'všetky autá majú zadané ceny'}</div>
-    <div class="ov-head">Firmy</div>
-    <div class="meta" style="margin-top:4px">${compRow}</div>
     <div class="ov-head">Vodiči</div>
     ${drvRows||'<div class="drv-col-empty">Žiadne priradenia.</div>'}
     <div class="result-sub" style="margin-top:16px">Aktuálny stav: ${state.vehicles.filter(v=>v.status==='aktualne').length} aktuálne · ${state.vehicles.filter(v=>v.status==='tyzdne').length} o 1–2 týždne · ${state.vehicles.filter(v=>v.inTransit).length} v preprave</div>`;
