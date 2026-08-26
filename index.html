@@ -266,50 +266,50 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
 <div id="loginOverlay" class="login-overlay hidden">
   <div class="login-box">
     <img class="login-logo" alt="Selected">
-    <div class="login-sub">PrihlÃ¡senie do dispeÄingu</div>
+    <div class="login-sub">Prihlásenie do dispečingu</div>
     <input class="in" id="loginEmail" type="email" placeholder="E-mail" autocomplete="username">
     <input class="in" id="loginPass" type="password" placeholder="Heslo" autocomplete="current-password">
     <div class="login-err" id="loginErr"></div>
     <div class="login-log" id="loginLog"></div>
-    <button class="btn btn-dark" id="loginBtn" style="width:100%; justify-content:center">PrihlÃ¡siÅ¥ sa</button>
+    <button class="btn btn-dark" id="loginBtn" style="width:100%; justify-content:center">Prihlásiť sa</button>
   </div>
   </div>
 </div>
 
 <div id="notifyOverlay" class="login-overlay hidden">
   <div class="login-box" style="align-items:stretch; text-align:left; width:380px;">
-    <div class="login-title" style="text-align:center">OznÃ¡menia na mobil</div>
-    <div class="notify-help">1) NainÅ¡taluj si appku <b>ntfy</b> (App Store / Google Play).<br>2) V appke daj <b>Subscribe to topic</b> a zadaj presne tento nÃ¡zov kanÃ¡la.<br>3) Hotovo â oznÃ¡menia ti budÃº chodiÅ¥ ako push na telefÃ³n.</div>
-    <label class="label">NÃ¡zov kanÃ¡la (topic)</label>
+    <div class="login-title" style="text-align:center">Oznámenia na mobil</div>
+    <div class="notify-help">1) Nainštaluj si appku <b>ntfy</b> (App Store / Google Play).<br>2) V appke daj <b>Subscribe to topic</b> a zadaj presne tento názov kanála.<br>3) Hotovo — oznámenia ti budú chodiť ako push na telefón.</div>
+    <label class="label">Názov kanála (topic)</label>
     <input class="in" id="ntfyTopic" placeholder="napr. selected-transport-x7g2">
-    <div class="label" style="margin-top:12px">PosielaÅ¥ oznÃ¡menie pri:</div>
-    <label class="chk"><input type="checkbox" id="nfNewVehicle"> PridanÃ© novÃ© auto</label>
+    <div class="label" style="margin-top:12px">Posielať oznámenie pri:</div>
+    <label class="chk"><input type="checkbox" id="nfNewVehicle"> Pridané nové auto</label>
     <label class="chk"><input type="checkbox" id="nfStatus"> Zmena stavu auta</label>
-    <label class="chk"><input type="checkbox" id="nfTransit"> Auto oznaÄenÃ© âv preprave"</label>
-    <label class="chk"><input type="checkbox" id="nfNewDriver"> PridanÃ½ novÃ½ vodiÄ</label>
+    <label class="chk"><input type="checkbox" id="nfTransit"> Auto označené „v preprave"</label>
+    <label class="chk"><input type="checkbox" id="nfNewDriver"> Pridaný nový vodič</label>
     <div class="notify-actions">
-      <button class="btn btn-ghost" id="ntfyTest">PoslaÅ¥ test</button>
-      <button class="btn btn-dark" id="ntfySave">UloÅ¾iÅ¥</button>
+      <button class="btn btn-ghost" id="ntfyTest">Poslať test</button>
+      <button class="btn btn-dark" id="ntfySave">Uložiť</button>
     </div>
-    <button class="btn btn-ghost" id="ntfyClose" style="margin-top:8px; justify-content:center">ZavrieÅ¥</button>
+    <button class="btn btn-ghost" id="ntfyClose" style="margin-top:8px; justify-content:center">Zavrieť</button>
   </div>
 </div>
 
 <div id="settingsOverlay" class="login-overlay hidden">
   <div class="login-box" style="align-items:stretch; text-align:left; width:420px; max-width:92vw;">
     <div class="login-title" style="text-align:center">Nastavenia</div>
-    <div class="notify-help">PriraÄ k emailom prezÃ½vky. Pri autÃ¡ch sa potom zobrazÃ­ meno namiesto emailu (napr. âpridal Nikolas").</div>
-    <div class="label" style="margin-top:6px">PrezÃ½vky podÄ¾a emailu</div>
+    <div class="notify-help">Priraď k emailom prezývky. Pri autách sa potom zobrazí meno namiesto emailu (napr. „pridal Nikolas").</div>
+    <div class="label" style="margin-top:6px">Prezývky podľa emailu</div>
     <div id="nickRows"></div>
-    <button class="btn btn-ghost" id="nickAdd" style="justify-content:center; margin-top:8px">+ PridaÅ¥ email</button>
-    <div class="label" style="margin-top:18px">PredvolenÃ© ciele</div>
-    <div class="notify-help" style="margin-top:4px">NÃ¡zov a adresa miesta. V aute ich rÃ½chlo vyberieÅ¡ pri âOdkiaÄ¾"/âKam".</div>
+    <button class="btn btn-ghost" id="nickAdd" style="justify-content:center; margin-top:8px">+ Pridať email</button>
+    <div class="label" style="margin-top:18px">Predvolené ciele</div>
+    <div class="notify-help" style="margin-top:4px">Názov a adresa miesta. V aute ich rýchlo vyberieš pri „Odkiaľ"/„Kam".</div>
     <div id="placeRows"></div>
-    <button class="btn btn-ghost" id="placeAdd" style="justify-content:center; margin-top:8px">+ PridaÅ¥ cieÄ¾</button>
+    <button class="btn btn-ghost" id="placeAdd" style="justify-content:center; margin-top:8px">+ Pridať cieľ</button>
     <div class="notify-actions">
-      <button class="btn btn-dark" id="settingsSave">UloÅ¾iÅ¥</button>
+      <button class="btn btn-dark" id="settingsSave">Uložiť</button>
     </div>
-    <button class="btn btn-ghost" id="settingsClose" style="margin-top:8px; justify-content:center">ZavrieÅ¥</button>
+    <button class="btn btn-ghost" id="settingsClose" style="margin-top:8px; justify-content:center">Zavrieť</button>
   </div>
 </div>
 
@@ -320,55 +320,55 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
     <div class="sub">SELECTED<br>Transport</div>
   </div>
   <div class="stats">
-    <div class="stat"><span class="stat-num" id="stAktualne">0</span><span class="stat-lbl">aktuÃ¡lne</span></div>
-    <div class="stat"><span class="stat-num" id="stTyzdne">0</span><span class="stat-lbl">o 1â2 tÃ½.</span></div>
-    <div class="stat"><span class="stat-num" id="stVodici">0</span><span class="stat-lbl">vodiÄov</span></div>
-    <button class="btn btn-ghost hidden" id="notifyBtn" style="padding:7px 12px; align-self:center" title="OznÃ¡menia na mobil">ð</button>
-    <button class="btn btn-ghost hidden" id="settingsBtn" style="padding:7px 12px; align-self:center" title="Nastavenia">â</button>
-    <span id="whoami" class="whoami hidden" title="PrihlÃ¡senÃ½ pouÅ¾Ã­vateÄ¾"></span>
-    <button class="btn btn-ghost hidden" id="logoutBtn" style="padding:7px 12px; align-self:center">OdhlÃ¡siÅ¥</button>
+    <div class="stat"><span class="stat-num" id="stAktualne">0</span><span class="stat-lbl">aktuálne</span></div>
+    <div class="stat"><span class="stat-num" id="stTyzdne">0</span><span class="stat-lbl">o 1–2 tý.</span></div>
+    <div class="stat"><span class="stat-num" id="stVodici">0</span><span class="stat-lbl">vodičov</span></div>
+    <button class="btn btn-ghost hidden" id="notifyBtn" style="padding:7px 12px; align-self:center" title="Oznámenia na mobil">🔔</button>
+    <button class="btn btn-ghost hidden" id="settingsBtn" style="padding:7px 12px; align-self:center" title="Nastavenia">⚙</button>
+    <span id="whoami" class="whoami hidden" title="Prihlásený používateľ"></span>
+    <button class="btn btn-ghost hidden" id="logoutBtn" style="padding:7px 12px; align-self:center">Odhlásiť</button>
   </div>
 </header>
 
 <div class="wrap">
   <nav class="tabs">
-    <button class="tab active" data-tab="vehicles">VozidlÃ¡</button>
-    <button class="tab" data-tab="drivers">VodiÄi</button>
-    <button class="tab" data-tab="calc">KalkulaÄka trÃ¡s</button>
-    <button class="tab" data-tab="cal">KalendÃ¡r</button>
-    <button class="tab" data-tab="stats">PrehÄ¾ad</button>
+    <button class="tab active" data-tab="vehicles">Vozidlá</button>
+    <button class="tab" data-tab="drivers">Vodiči</button>
+    <button class="tab" data-tab="calc">Kalkulačka trás</button>
+    <button class="tab" data-tab="cal">Kalendár</button>
+    <button class="tab" data-tab="stats">Prehľad</button>
   </nav>
 
-  <!-- ============ VOZIDLÃ ============ -->
+  <!-- ============ VOZIDLÁ ============ -->
   <section id="tab-vehicles">
     <div class="card">
-      <h3 class="form-title" id="vehFormTitle">PridaÅ¥ vozidlo na odvoz</h3>
+      <h3 class="form-title" id="vehFormTitle">Pridať vozidlo na odvoz</h3>
       <div class="grid">
         <div class="field"><label class="label">Model</label><input class="in" id="vModel" placeholder="napr. Bentley Bentayga"></div>
         <div class="field"><label class="label">SC číslo</label><input class="in mono" id="vScCode" placeholder="napr. SC-001254"></div>
-        <div class="field"><label class="label">OdkiaÄ¾</label><input class="in" id="vFrom" placeholder="Mesto / dealer"><select class="in place-pick" id="vFromPick" style="margin-top:6px; font-size:12.5px"></select></div>
+        <div class="field"><label class="label">Odkiaľ</label><input class="in" id="vFrom" placeholder="Mesto / dealer"><select class="in place-pick" id="vFromPick" style="margin-top:6px; font-size:12.5px"></select></div>
         <div class="field"><label class="label">Kam</label><input class="in" id="vTo" placeholder="Mesto / klient"><select class="in place-pick" id="vToPick" style="margin-top:6px; font-size:12.5px"></select></div>
         <div class="field"><label class="label">VIN</label><input class="in mono" id="vVin" placeholder="WBA..."></div>
         <div class="field"><label class="label">Stav</label>
           <select class="in" id="vStatus">
-            <option value="aktualne">AktuÃ¡lne</option>
-            <option value="tyzdne">O 1â2 tÃ½Å¾dne</option>
-            <option value="vybavene">VybavenÃ©</option>
+            <option value="aktualne">Aktuálne</option>
+            <option value="tyzdne">O 1–2 týždne</option>
+            <option value="vybavene">Vybavené</option>
           </select></div>
-        <div class="field"><label class="label">NaÅ¡a cena / nÃ¡klad (â¬)</label><input class="in" id="vCost" type="text" inputmode="decimal" placeholder="koÄ¾ko platÃ­me my"></div>
-        <div class="field"><label class="label">Cena pre klienta (â¬)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="koÄ¾ko ÃºÄtujeme"></div>
-        <div class="field"><label class="label">VodiÄ</label><select class="in" id="vDriver"></select></div>
+        <div class="field"><label class="label">Naša cena / náklad (€)</label><input class="in" id="vCost" type="text" inputmode="decimal" placeholder="koľko platíme my"></div>
+        <div class="field"><label class="label">Cena pre klienta (€)</label><input class="in" id="vPrice" type="text" inputmode="decimal" placeholder="koľko účtujeme"></div>
+        <div class="field"><label class="label">Vodič</label><select class="in" id="vDriver"></select></div>
         <div class="field"><label class="label">Firma (pre koho)</label><select class="in" id="vCompany">
             <option value="selected">SELECTED</option>
             <option value="transportcars">TransportCars</option>
           </select></div>
-        <div class="field"><label class="label">ZaÄiatok prepravy</label><input class="in" id="vStart" type="date"></div>
-        <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> AktuÃ¡lne v preprave</label></div>
-        <div class="field wide"><label class="label">PoznÃ¡mka</label><input class="in" id="vNote" placeholder="TermÃ­n, kontakt, detailyâ¦"></div>
+        <div class="field"><label class="label">Začiatok prepravy</label><input class="in" id="vStart" type="date"></div>
+        <div class="field"><label class="label">Preprava</label><label class="chk"><input type="checkbox" id="vInTransit"> Aktuálne v preprave</label></div>
+        <div class="field wide"><label class="label">Poznámka</label><input class="in" id="vNote" placeholder="Termín, kontakt, detaily…"></div>
       </div>
       <div class="actions">
-        <button class="btn btn-dark" id="vSubmit">PridaÅ¥</button>
-        <button class="btn btn-ghost hidden" id="vCancel">ZruÅ¡iÅ¥</button>
+        <button class="btn btn-dark" id="vSubmit">Pridať</button>
+        <button class="btn btn-ghost hidden" id="vCancel">Zrušiť</button>
       </div>
     </div>
     <div class="filters" id="vehCompanyFilters"></div>
@@ -376,75 +376,75 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
     <div id="vehList"></div>
   </section>
 
-  <!-- ============ VODIÄI ============ -->
+  <!-- ============ VODIČI ============ -->
   <section id="tab-drivers" class="hidden">
     <div class="card">
-      <h3 class="form-title" id="drvFormTitle">PridaÅ¥ vodiÄa</h3>
+      <h3 class="form-title" id="drvFormTitle">Pridať vodiča</h3>
       <div class="grid">
         <div class="field wide"><label class="label">Meno</label><input class="in" id="dName" placeholder="Meno a priezvisko"></div>
         <div class="field"><label class="label">Typ</label>
-          <select class="in" id="dType"><option value="interny">InternÃ½</option><option value="externy">ExternÃ½</option></select></div>
+          <select class="in" id="dType"><option value="interny">Interný</option><option value="externy">Externý</option></select></div>
         <div class="field"><label class="label">Zaradenie</label>
-          <select class="in" id="dTier"><option value="hlavny">HlavnÃ½</option><option value="zalozny">ZÃ¡loÅ¾nÃ½</option></select></div>
-        <div class="field"><label class="label">Sadzba (â¬/km)</label><input class="in" id="dRate" type="number" placeholder="0"></div>
-        <div class="field"><label class="label">TelefÃ³n</label><input class="in" id="dPhone" placeholder="+421â¦"></div>
-        <div class="field"><label class="label">E-mail</label><input class="in" id="dEmail" placeholder="email@â¦"></div>
-        <div class="field wide"><label class="label">Popis</label><input class="in" id="dNote" placeholder="OblasÅ¥, typ Ã¡ut, dostupnosÅ¥â¦"></div>
+          <select class="in" id="dTier"><option value="hlavny">Hlavný</option><option value="zalozny">Záložný</option></select></div>
+        <div class="field"><label class="label">Sadzba (€/km)</label><input class="in" id="dRate" type="number" placeholder="0"></div>
+        <div class="field"><label class="label">Telefón</label><input class="in" id="dPhone" placeholder="+421…"></div>
+        <div class="field"><label class="label">E-mail</label><input class="in" id="dEmail" placeholder="email@…"></div>
+        <div class="field wide"><label class="label">Popis</label><input class="in" id="dNote" placeholder="Oblasť, typ áut, dostupnosť…"></div>
       </div>
       <div class="actions">
-        <button class="btn btn-dark" id="dSubmit">PridaÅ¥</button>
-        <button class="btn btn-ghost hidden" id="dCancel">ZruÅ¡iÅ¥</button>
+        <button class="btn btn-dark" id="dSubmit">Pridať</button>
+        <button class="btn btn-ghost hidden" id="dCancel">Zrušiť</button>
       </div>
     </div>
     <div id="drvList"></div>
   </section>
 
-  <!-- ============ KALKULAÄKA ============ -->
+  <!-- ============ KALKULAČKA ============ -->
   <section id="tab-calc" class="hidden">
     <div class="card">
-      <h3 class="form-title">VÃ½poÄet trasy</h3>
+      <h3 class="form-title">Výpočet trasy</h3>
       <div class="grid">
-        <div class="field" style="grid-column:span 4"><label class="label">ZastÃ¡vky (v poradÃ­ A â B â C â¦)</label>
+        <div class="field" style="grid-column:span 4"><label class="label">Zastávky (v poradí A → B → C …)</label>
           <div id="cStops"></div>
-          <button class="btn btn-ghost" id="cAddStop" style="margin-top:6px; padding:7px 14px">+ PridaÅ¥ zastÃ¡vku</button></div>
-        <div class="field"><label class="label">VzdialenosÅ¥ (km)</label><input class="in" id="cDist" type="number" placeholder="0"></div>
-        <div class="field"><label class="label">Sadzba (â¬/km)</label>
-          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="text" inputmode="decimal" placeholder="napr. 0,45" style="flex:1; min-width:0"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px; flex:0 0 auto" title="UloÅ¾iÅ¥ ako predvolenÃº">â</button></div></div>
-        <div class="field"><label class="label">MarÅ¾a (%)</label><input class="in" id="cMpct" type="number" placeholder="0"></div>
-        <div class="field"><label class="label">MarÅ¾a (â¬ fix)</label><input class="in" id="cMfix" type="number" placeholder="0"></div>
+          <button class="btn btn-ghost" id="cAddStop" style="margin-top:6px; padding:7px 14px">+ Pridať zastávku</button></div>
+        <div class="field"><label class="label">Vzdialenosť (km)</label><input class="in" id="cDist" type="number" placeholder="0"></div>
+        <div class="field"><label class="label">Sadzba (€/km)</label>
+          <div style="display:flex;gap:6px"><input class="in" id="cRate" type="text" inputmode="decimal" placeholder="napr. 0,45" style="flex:1; min-width:0"><button class="btn btn-dark" id="cSaveRate" style="padding:9px 12px; flex:0 0 auto" title="Uložiť ako predvolenú">✓</button></div></div>
+        <div class="field"><label class="label">Marža (%)</label><input class="in" id="cMpct" type="number" placeholder="0"></div>
+        <div class="field"><label class="label">Marža (€ fix)</label><input class="in" id="cMfix" type="number" placeholder="0"></div>
       </div>
 
       <div id="cMap" class="map"></div>
       <div class="map-hint">
         <span class="badge" id="cEngine">Zadarmo (OpenStreetMap)</span>
         <a id="geoAttrib" href="https://www.geoapify.com/" target="_blank" rel="noopener" class="gkey-hint" style="display:none"></a>
-        <span>Klik do mapy = pridaÅ¥ bod. Body Å¥ahaj na Ãºpravu. Trasa vedie v poradÃ­ A â B â C â¦</span>
-        <button class="btn btn-ghost" id="cClear" style="padding:5px 12px; margin-left:auto">VymazaÅ¥ body</button>
+        <span>Klik do mapy = pridať bod. Body ťahaj na úpravu. Trasa vedie v poradí A → B → C …</span>
+        <button class="btn btn-ghost" id="cClear" style="padding:5px 12px; margin-left:auto">Vymazať body</button>
       </div>
 
       <div class="result">
-        <div class="res"><div class="res-lbl">NÃ¡klad (vodiÄ)</div><div class="res-val" id="rCost">0,00 â¬</div></div>
-        <div class="res"><div class="res-lbl">MarÅ¾a</div><div class="res-val" id="rMargin">0,00 â¬</div></div>
-        <div class="res"><div class="res-lbl">Cena pre klienta</div><div class="res-val big" id="rClient">0,00 â¬</div></div>
+        <div class="res"><div class="res-lbl">Náklad (vodič)</div><div class="res-val" id="rCost">0,00 €</div></div>
+        <div class="res"><div class="res-lbl">Marža</div><div class="res-val" id="rMargin">0,00 €</div></div>
+        <div class="res"><div class="res-lbl">Cena pre klienta</div><div class="res-val big" id="rClient">0,00 €</div></div>
       </div>
-      <div class="result-sub" id="rSub">Zadaj vzdialenosÅ¥ alebo body na mape pre vÃ½poÄet</div>
+      <div class="result-sub" id="rSub">Zadaj vzdialenosť alebo body na mape pre výpočet</div>
 
       <div class="actions">
-        <button class="btn btn-dark" id="cSave">UloÅ¾iÅ¥ trasu</button>
+        <button class="btn btn-dark" id="cSave">Uložiť trasu</button>
       </div>
     </div>
     <div id="rtList"></div>
   </section>
 
-  <!-- ============ KALENDÃR ============ -->
+  <!-- ============ KALENDÁR ============ -->
   <section id="tab-cal" class="hidden">
     <div class="card">
       <div class="cal-head">
         <h3 class="form-title" style="margin:0" id="calTitle"></h3>
         <div class="cal-nav">
-          <button class="btn btn-ghost" id="calPrev" style="padding:7px 13px">â¹</button>
+          <button class="btn btn-ghost" id="calPrev" style="padding:7px 13px">‹</button>
           <button class="btn btn-ghost" id="calToday" style="padding:7px 13px">Dnes</button>
-          <button class="btn btn-ghost" id="calNext" style="padding:7px 13px">âº</button>
+          <button class="btn btn-ghost" id="calNext" style="padding:7px 13px">›</button>
         </div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
@@ -453,11 +453,11 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
     </div>
   </section>
 
-  <!-- ============ PREHÄ½AD ============ -->
+  <!-- ============ PREHĽAD ============ -->
   <section id="tab-stats" class="hidden">
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px">
-        <h3 class="form-title" style="margin:0">PrehÄ¾ad preprÃ¡v</h3>
+        <h3 class="form-title" style="margin:0">Prehľad prepráv</h3>
         <select class="in" id="ovMonth" style="width:auto; min-width:170px"></select>
       </div>
       <div id="ovBody"></div>
@@ -468,11 +468,11 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
 <footer class="footer" id="footer"></footer>
 
 <div id="selBar" class="sel-bar hidden">
-  <span class="sel-count" id="selCount">0 oznaÄenÃ½ch</span>
+  <span class="sel-count" id="selCount">0 označených</span>
   <div class="sel-actions">
-    <button class="btn btn-ghost" id="selCancel">ZruÅ¡iÅ¥</button>
-    <button class="btn btn-ghost" id="selDelete" style="color:#d24b4b; border-color:#d24b4b">VymazaÅ¥</button>
-    <button class="btn btn-dark" id="selCopy">KopÃ­rovaÅ¥</button>
+    <button class="btn btn-ghost" id="selCancel">Zrušiť</button>
+    <button class="btn btn-ghost" id="selDelete" style="color:#d24b4b; border-color:#d24b4b">Vymazať</button>
+    <button class="btn btn-dark" id="selCopy">Kopírovať</button>
   </div>
 </div>
 
@@ -483,19 +483,19 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
       <button class="lang-btn active" id="langSk" data-lang="sk">Slovensky</button>
       <button class="lang-btn" id="langEn" data-lang="en">English</button>
     </div>
-    <div class="notify-help" id="copyStatus">Text bol skopÃ­rovanÃ½ do schrÃ¡nky â mÃ´Å¾eÅ¡ ho rovno poslaÅ¥.</div>
+    <div class="notify-help" id="copyStatus">Text bol skopírovaný do schránky — môžeš ho rovno poslať.</div>
     <textarea class="in" id="copyText" style="min-height:280px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.5; resize:vertical"></textarea>
     <div class="notify-actions">
-      <button class="btn btn-dark" id="copyAgain">KopÃ­rovaÅ¥ znova</button>
+      <button class="btn btn-dark" id="copyAgain">Kopírovať znova</button>
     </div>
-    <button class="btn btn-ghost" id="copyClose" style="margin-top:8px; justify-content:center">ZavrieÅ¥</button>
+    <button class="btn btn-ghost" id="copyClose" style="margin-top:8px; justify-content:center">Zavrieť</button>
   </div>
 </div>
 
 <script>
 /* ---------------- helpers ---------------- */
 const $ = (id) => document.getElementById(id);
-/* login logo = to istÃ© ako v headeri (base64 je v sÃºbore len raz) */
+/* login logo = to isté ako v headeri (base64 je v súbore len raz) */
 (function(){ const h=document.querySelector('.brand .logo'); const l=document.querySelector('.login-logo'); if(h&&l) l.src=h.src; })();
 const uid = () => Math.random().toString(36).slice(2,10);
 const eur = (n) => new Intl.NumberFormat('sk-SK',{style:'currency',currency:'EUR'}).format(Number.isFinite(+n)?+n:0);
@@ -503,17 +503,17 @@ const kmF = (n) => new Intl.NumberFormat('sk-SK',{maximumFractionDigits:1}).form
 const esc = (s) => String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const STATUSES = {
-  aktualne:{label:'AktuÃ¡lne', color:'#b691f0', rank:0},
-  tyzdne:{label:'O 1â2 tÃ½Å¾dne', color:'#9ba0a8', rank:1},
-  vybavene:{label:'VybavenÃ©', color:'#5f646c', rank:2},
+  aktualne:{label:'Aktuálne', color:'#b691f0', rank:0},
+  tyzdne:{label:'O 1–2 týždne', color:'#9ba0a8', rank:1},
+  vybavene:{label:'Vybavené', color:'#5f646c', rank:2},
 };
 
 /* ---------------- storage (works in Claude artifact + standalone) ---------------- */
-/* ---------------- Supabase cez REST (bez SDK â spoÄ¾ahlivejÅ¡ie) ---------------- */
+/* ---------------- Supabase cez REST (bez SDK – spoľahlivejšie) ---------------- */
 const SUPABASE_URL='https://hwkpvzkzmbufhougwofy.supabase.co';
 const SUPABASE_KEY='sb_publishable_SZmLLXby39QNQ7RYS5_4lA_hDvBx3on';
-/* Geoapify (routing + geocoding, free 3000 kreditov/deÅ): kÄ¾ÃºÄ z https://myprojects.geoapify.com
-   PrÃ¡zdne = kalkulaÄka beÅ¾Ã­ na OSRM/Photon demo serveroch ako doteraz. */
+/* Geoapify (routing + geocoding, free 3000 kreditov/deň): kľúč z https://myprojects.geoapify.com
+   Prázdne = kalkulačka beží na OSRM/Photon demo serveroch ako doteraz. */
 const GEOAPIFY_KEY='5250cd9b266a452caa3d7d2f8fd250c1';
 const hasGeoKey=()=>typeof GEOAPIFY_KEY==='string' && GEOAPIFY_KEY.length>10;
 const CLOUD = typeof SUPABASE_URL==='string' && SUPABASE_URL.indexOf('http')===0;
@@ -524,9 +524,9 @@ function loadTokens(){ try{ return JSON.parse(localStorage.getItem('sb_tok')||'n
 function clearTokens(){ try{ localStorage.removeItem('sb_tok'); }catch(e){} }
 function currentEmail(){ try{ const t=loadTokens(); if(!t||!t.access_token) return ''; const p=JSON.parse(atob(t.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); return p.email||''; }catch(e){ return ''; } }
 function getNicknames(){ if(!state.settings.nicknames) state.settings.nicknames={}; return state.settings.nicknames; }
-function getPlaces(){ if(!state.settings.places) state.settings.places=[{id:uid(),name:'SELECTED Showroom',address:'DevÃ­nska NovÃ¡ Ves, 7647, Slovensko'}]; return state.settings.places; }
+function getPlaces(){ if(!state.settings.places) state.settings.places=[{id:uid(),name:'SELECTED Showroom',address:'Devínska Nová Ves, 7647, Slovensko'}]; return state.settings.places; }
 function fillPlacePicks(){
-  const opts='<option value="">â predvolenÃ½ cieÄ¾ â</option>'+getPlaces().map(p=>`<option value="${esc(p.address||p.name)}">${esc(p.name)}${p.address?(' â '+esc(p.address)):''}</option>`).join('');
+  const opts='<option value="">— predvolený cieľ —</option>'+getPlaces().map(p=>`<option value="${esc(p.address||p.name)}">${esc(p.name)}${p.address?(' — '+esc(p.address)):''}</option>`).join('');
   ['vFromPick','vToPick'].forEach(id=>{ const el=$(id); if(el) el.innerHTML=opts; el.value=''; });
 }
 function nameFor(email){ if(!email) return ''; const n=getNicknames()[email.toLowerCase()]; return n||email.split('@')[0]; }
@@ -537,14 +537,14 @@ function knownEmails(){
   Object.keys(getNicknames()).forEach(e=>set.add(e.toLowerCase()));
   return [...set];
 }
-function nickRowHTML(email,nick){ return `<div class="nick-row"><input class="in nick-email" placeholder="email@firma.sk" value="${esc(email||'')}"><input class="in nick-name" placeholder="prezÃ½vka" value="${esc(nick||'')}"><button class="row-del" title="OdstrÃ¡niÅ¥">â</button></div>`; }
+function nickRowHTML(email,nick){ return `<div class="nick-row"><input class="in nick-email" placeholder="email@firma.sk" value="${esc(email||'')}"><input class="in nick-name" placeholder="prezývka" value="${esc(nick||'')}"><button class="row-del" title="Odstrániť">✕</button></div>`; }
 function renderNickRows(){
   const nicks=getNicknames();
   const rows=knownEmails().map(e=>nickRowHTML(e, nicks[e]||''));
   if(rows.length===0) rows.push(nickRowHTML('',''));
   $('nickRows').innerHTML=rows.join('');
 }
-function placeRowHTML(name,addr){ return `<div class="nick-row"><span class="drag-handle" title="Å¤ahaj pre poradie">â®â®</span><input class="in place-name" placeholder="NÃ¡zov (napr. SELECTED Showroom)" value="${esc(name||'')}"><input class="in place-addr" placeholder="Adresa" value="${esc(addr||'')}"><button class="row-del" title="OdstrÃ¡niÅ¥">â</button></div>`; }
+function placeRowHTML(name,addr){ return `<div class="nick-row"><span class="drag-handle" title="Ťahaj pre poradie">⋮⋮</span><input class="in place-name" placeholder="Názov (napr. SELECTED Showroom)" value="${esc(name||'')}"><input class="in place-addr" placeholder="Adresa" value="${esc(addr||'')}"><button class="row-del" title="Odstrániť">✕</button></div>`; }
 function renderPlaceRows(){
   const rows=getPlaces().map(p=>placeRowHTML(p.name,p.address));
   if(rows.length===0) rows.push(placeRowHTML('',''));
@@ -558,15 +558,15 @@ function authHeaders(){ return { 'apikey':SUPABASE_KEY, 'Authorization':'Bearer 
 function dbg(m){ try{ const el=document.getElementById('loginLog'); if(el){ el.textContent += (el.textContent?'\n':'') + m; el.scrollTop=el.scrollHeight; } }catch(e){} console.log('[dispecing] '+m); }
 
 async function sbLogin(email,password){
-  dbg('1) Odosielam prihlÃ¡senie na auth endpointâ¦');
+  dbg('1) Odosielam prihlásenie na auth endpoint…');
   let res;
   try{
     res=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-  }catch(e){ dbg('â SieÅ¥ovÃ¡ chyba: '+e.message); throw e; }
-  dbg('2) Auth odpoveÄ: HTTP '+res.status);
+  }catch(e){ dbg('✗ Sieťová chyba: '+e.message); throw e; }
+  dbg('2) Auth odpoveď: HTTP '+res.status);
   const j=await res.json().catch(()=>({}));
-  if(!res.ok){ dbg('â Auth chyba: '+(j.error_description||j.msg||j.error||j.message||res.status)); throw new Error(j.error_description||j.msg||j.message||('HTTP '+res.status)); }
-  accessToken=j.access_token; saveTokens(j); dbg('3) PrihlÃ¡senÃ½, token zÃ­skanÃ½ â'); return true;
+  if(!res.ok){ dbg('✗ Auth chyba: '+(j.error_description||j.msg||j.error||j.message||res.status)); throw new Error(j.error_description||j.msg||j.message||('HTTP '+res.status)); }
+  accessToken=j.access_token; saveTokens(j); dbg('3) Prihlásený, token získaný ✓'); return true;
 }
 async function sbRefresh(){
   const t=loadTokens(); if(!t||!t.refresh_token) return false;
@@ -583,7 +583,7 @@ function sessionExpired(){
   if(pollTimer){ clearInterval(pollTimer); pollTimer=null; }
   showLogin(true);
   const e=document.getElementById('loginErr');
-  if(e) e.textContent='RelÃ¡cia vyprÅ¡ala â prihlÃ¡s sa znova. NeuloÅ¾enÃ© zmeny sÃº vo fronte a odoÅ¡lÃº sa hneÄ po prihlÃ¡senÃ­.';
+  if(e) e.textContent='Relácia vypršala — prihlás sa znova. Neuložené zmeny sú vo fronte a odošlú sa hneď po prihlásení.';
 }
 async function rest(path, opts, retry){
   opts=opts||{};
@@ -628,18 +628,18 @@ const M={
   }
 };
 
-/* ---- outbox: zÃ¡pisy preÅ¾ijÃº vÃ½padok siete a nikdy sa ticho nestratia ---- */
+/* ---- outbox: zápisy prežijú výpadok siete a nikdy sa ticho nestratia ---- */
 let outbox=[]; try{ outbox=JSON.parse(localStorage.getItem('dispatch:outbox')||'[]'); }catch(e){}
 let flushing=false;
 function saveOutbox(){ try{ localStorage.setItem('dispatch:outbox', JSON.stringify(outbox)); }catch(e){} }
 function syncBadge(){
   const f=$('footer'); if(!f) return;
-  if(outbox.length){ f.textContent='â  '+outbox.length+(outbox.length===1?' neuloÅ¾enÃ¡ zmena':' neuloÅ¾enÃ½ch zmien')+' â skÃºÅ¡am znovaâ¦'; f.style.color='#d24b4b'; }
-  else { f.textContent='DÃ¡ta sa ukladajÃº online a synchronizujÃº medzi zariadeniami.'; f.style.color=''; }
+  if(outbox.length){ f.textContent='⚠ '+outbox.length+(outbox.length===1?' neuložená zmena':' neuložených zmien')+' — skúšam znova…'; f.style.color='#d24b4b'; }
+  else { f.textContent='Dáta sa ukladajú online a synchronizujú medzi zariadeniami.'; f.style.color=''; }
 }
-/* Postgres (21000) odmietne upsert, ak je v jednej dÃ¡vke ten istÃ½ id dvakrÃ¡t.
-   Dedup nechÃ¡va POSLEDNÃ vÃ½skyt = najnovÅ¡Ã­ stav. BeÅ¾Ã­ pri odoslanÃ­, takÅ¾e
-   oÄistÃ­ aj ops, ktorÃ© uÅ¾ leÅ¾ia vo fronte v localStorage. */
+/* Postgres (21000) odmietne upsert, ak je v jednej dávke ten istý id dvakrát.
+   Dedup necháva POSLEDNÝ výskyt = najnovší stav. Beží pri odoslaní, takže
+   očistí aj ops, ktoré už ležia vo fronte v localStorage. */
 function dedupeRows(rows){
   const m=new Map(); (rows||[]).forEach(r=>{ if(r && r.id!=null) m.set(r.id, r); });
   return [...m.values()];
@@ -659,20 +659,20 @@ async function flushOutbox(){
     catch(e){
       const m=(e&&e.message)||'';
       if(/HTTP 4(0[03456789]|[1-9]\d)/.test(m) && !/HTTP 4(08|29)/.test(m)){
-        // trvalÃ¡ chyba (zlÃ½ payload/prÃ¡va) â zahodiÅ¥ a nahlÃ¡siÅ¥, nech fronta nezasekne sync
-        console.error('Zahadzujem neplatnÃ½ zÃ¡pis:', outbox[0], m);
+        // trvalá chyba (zlý payload/práva) — zahodiť a nahlásiť, nech fronta nezasekne sync
+        console.error('Zahadzujem neplatný zápis:', outbox[0], m);
         outbox.shift(); saveOutbox();
-        alert('Jedna zmena sa nedala uloÅ¾iÅ¥ ('+m+') a bola zahodenÃ¡. Skontroluj dÃ¡ta a skÃºs znova.');
+        alert('Jedna zmena sa nedala uložiť ('+m+') a bola zahodená. Skontroluj dáta a skús znova.');
         continue;
       }
-      break; // sieÅ¥/5xx â nechÃ¡me vo fronte, skÃºsi sa o 5 s
+      break; // sieť/5xx — necháme vo fronte, skúsi sa o 5 s
     }
   }
   flushing=false; syncBadge();
 }
 function queueOp(op){ outbox.push(op); saveOutbox(); syncBadge(); flushOutbox(); }
 
-/* ---- granulÃ¡rne zÃ¡pisy (per zÃ¡znam, Å¾iadne prepisovanie cudzÃ­ch zmien) ---- */
+/* ---- granulárne zápisy (per záznam, žiadne prepisovanie cudzích zmien) ---- */
 function saveVehicle(v){ queueOp({t:'up', table:'vehicles', rows:[M.vehicles.to(v)]}); renderStats(); }
 function saveVehicles(arr){ if(arr.length) queueOp({t:'up', table:'vehicles', rows:arr.map(M.vehicles.to)}); renderStats(); }
 function deleteVehicleRow(id){
@@ -690,7 +690,7 @@ function deleteRouteRow(id){ queueOp({t:'del', table:'routes', id:id}); }
 function saveSettings(){ queueOp({t:'up', table:'app_settings', rows:[{id:'main', data:state.settings}]}); }
 
 async function loadAll(){
-  dbg('4) NaÄÃ­tavam dÃ¡ta z databÃ¡zyâ¦');
+  dbg('4) Načítavam dáta z databázy…');
   const [v,d,r,s]=await Promise.all([
     rest('vehicles?select=*&deleted_at_ms=is.null').then(x=>x.json()),
     rest('drivers?select=*').then(x=>x.json()),
@@ -701,7 +701,7 @@ async function loadAll(){
   state.drivers=d.map(M.drivers.from);
   state.routes=r.map(M.routes.from);
   state.settings=(s[0]&&s[0].data)||{};
-  dbg('5) DÃ¡ta naÄÃ­tanÃ© â ('+state.vehicles.length+' Ã¡ut, '+state.drivers.length+' vodiÄov)');
+  dbg('5) Dáta načítané ✓ ('+state.vehicles.length+' áut, '+state.drivers.length+' vodičov)');
 }
 
 let state = { drivers:[], vehicles:[], routes:[], settings:{} };
@@ -712,7 +712,7 @@ const COMPANIES={ selected:{label:'SELECTED', color:'#b691f0'}, transportcars:{l
 function companyOf(v){ return COMPANIES[v.company] ? v.company : 'selected'; }
 let selectedVeh=new Set();
 
-/* ---------------- oznÃ¡menia (ntfy) ---------------- */
+/* ---------------- oznámenia (ntfy) ---------------- */
 function getNotify(){ if(!state.settings.notify) state.settings.notify={topic:'',onNewVehicle:true,onStatus:true,onTransit:true,onNewDriver:true}; return state.settings.notify; }
 async function notify(title, message){
   const n=getNotify(); if(!n.topic) return;
@@ -722,7 +722,7 @@ async function notify(title, message){
   }catch(e){}
 }
 function openNotify(){
-  if(CLOUD && !accessToken) return;   // dostupnÃ© len po prihlÃ¡senÃ­
+  if(CLOUD && !accessToken) return;   // dostupné len po prihlásení
   const n=getNotify();
   if(!n.topic) n.topic='selected-transport-'+Math.random().toString(36).slice(2,8);
   $('ntfyTopic').value=n.topic;
@@ -736,14 +736,14 @@ $('notifyBtn').addEventListener('click', openNotify);
 function updateSelBar(){
   const n=selectedVeh.size;
   const bar=$('selBar');
-  if(n>0){ bar.classList.remove('hidden'); $('selCount').textContent = n+(n===1?' oznaÄenÃ©':(n<5?' oznaÄenÃ©':' oznaÄenÃ½ch')); }
+  if(n>0){ bar.classList.remove('hidden'); $('selCount').textContent = n+(n===1?' označené':(n<5?' označené':' označených')); }
   else bar.classList.add('hidden');
 }
 function clearSelection(){ selectedVeh.clear(); updateSelBar(); renderVehicles(); }
 $('selCancel').addEventListener('click', clearSelection);
 $('selDelete').addEventListener('click', async ()=>{
   const n=selectedVeh.size; if(!n) return;
-  if(!confirm('VymazaÅ¥ '+n+' oznaÄenÃ½ch Ã¡ut? TÃºto akciu nie je moÅ¾nÃ© vrÃ¡tiÅ¥ spÃ¤Å¥.')) return;
+  if(!confirm('Vymazať '+n+' označených áut? Túto akciu nie je možné vrátiť späť.')) return;
   const ids=[...selectedVeh];
   ids.forEach(deleteVehicleRow);
   state.vehicles=state.vehicles.filter(v=>!selectedVeh.has(v.id));
@@ -760,8 +760,8 @@ function buildTransportText(lang){
     lines.push(items.length>1 ? 'We would like to request a transport quote for the following vehicles:' : 'We would like to request a transport quote for the following vehicle:');
     lines.push('');
   } else {
-    lines.push('DobrÃ½ deÅ,','');
-    lines.push(items.length>1 ? 'chceli by sme VÃ¡s poprosiÅ¥ o cenovÃº ponuku na prepravu nasledujÃºcich vozidiel:' : 'chceli by sme VÃ¡s poprosiÅ¥ o cenovÃº ponuku na prepravu nasledujÃºceho vozidla:');
+    lines.push('Dobrý deň,','');
+    lines.push(items.length>1 ? 'chceli by sme Vás poprosiť o cenovú ponuku na prepravu nasledujúcich vozidiel:' : 'chceli by sme Vás poprosiť o cenovú ponuku na prepravu nasledujúceho vozidla:');
     lines.push('');
   }
   items.forEach((v,i)=>{
@@ -772,9 +772,9 @@ function buildTransportText(lang){
       lines.push('To: '+(v.to||'TBC'));
       lines.push('Loading date: '+(v.startDate?formatEnDate(v.startDate):'to be confirmed'));
     } else {
-      lines.push('Z miesta: '+(v.from||'bude upresnenÃ©'));
-      lines.push('Do: '+(v.to||'bude upresnenÃ©'));
-      lines.push('DÃ¡tum naklÃ¡dky: '+(v.startDate?fmtDate(v.startDate):'bude upresnenÃ©'));
+      lines.push('Z miesta: '+(v.from||'bude upresnené'));
+      lines.push('Do: '+(v.to||'bude upresnené'));
+      lines.push('Dátum nakládky: '+(v.startDate?fmtDate(v.startDate):'bude upresnené'));
     }
     if(v.vin) lines.push('VIN: '+v.vin.toUpperCase());
     lines.push('');
@@ -783,8 +783,8 @@ function buildTransportText(lang){
     lines.push('Could you please confirm your availability and send us your best price for this transport?','');
     lines.push('Thank you in advance.');
   } else {
-    lines.push('Vedeli by ste nÃ¡m potvrdiÅ¥ dostupnosÅ¥ a poslaÅ¥ najlepÅ¡iu cenu za tÃºto prepravu?','');
-    lines.push('Vopred Äakujeme.');
+    lines.push('Vedeli by ste nám potvrdiť dostupnosť a poslať najlepšiu cenu za túto prepravu?','');
+    lines.push('Vopred ďakujeme.');
   }
   return lines.join('\n');
 }
@@ -800,7 +800,7 @@ async function showCopy(lang){
   const text=buildTransportText(lang);
   $('copyText').value=text;
   const ok=await doCopy(text);
-  $('copyStatus').textContent = ok ? 'Text bol skopÃ­rovanÃ½ do schrÃ¡nky â mÃ´Å¾eÅ¡ ho rovno poslaÅ¥.' : 'SkopÃ­ruj text niÅ¾Å¡ie ruÄne (oznaÄ a Ctrl/Cmd+C).';
+  $('copyStatus').textContent = ok ? 'Text bol skopírovaný do schránky — môžeš ho rovno poslať.' : 'Skopíruj text nižšie ručne (označ a Ctrl/Cmd+C).';
 }
 $('selCopy').addEventListener('click', async ()=>{
   if(!selectedVeh.size) return;
@@ -809,7 +809,7 @@ $('selCopy').addEventListener('click', async ()=>{
 });
 $('langSk').addEventListener('click', ()=>showCopy('sk'));
 $('langEn').addEventListener('click', ()=>showCopy('en'));
-$('copyAgain').addEventListener('click', async ()=>{ const ok=await doCopy($('copyText').value); $('copyStatus').textContent = ok?'SkopÃ­rovanÃ© â':'OznaÄ text a stlaÄ Ctrl/Cmd+C.'; });
+$('copyAgain').addEventListener('click', async ()=>{ const ok=await doCopy($('copyText').value); $('copyStatus').textContent = ok?'Skopírované ✓':'Označ text a stlač Ctrl/Cmd+C.'; });
 $('copyClose').addEventListener('click', ()=>$('copyOverlay').classList.add('hidden'));
 $('settingsBtn').addEventListener('click', openSettings);
 $('settingsClose').addEventListener('click', closeSettings);
@@ -840,10 +840,10 @@ $('ntfySave').addEventListener('click', async ()=>{
   saveSettings(); $('notifyOverlay').classList.add('hidden');
 });
 $('ntfyTest').addEventListener('click', async ()=>{
-  const t=$('ntfyTopic').value.trim(); if(!t){ alert('Najprv zadaj nÃ¡zov kanÃ¡la.'); return; }
+  const t=$('ntfyTopic').value.trim(); if(!t){ alert('Najprv zadaj názov kanála.'); return; }
   state.settings.notify=Object.assign(getNotify(),{topic:t});
-  await notify('SELECTED Transport','Testovacie oznÃ¡menie â');
-  alert('Test odoslanÃ½. Ak mÃ¡Å¡ v appke ntfy prihlÃ¡senÃ½ kanÃ¡l â'+t+'", o chvÃ­Ä¾u ti prÃ­de.');
+  await notify('SELECTED Transport','Testovacie oznámenie ✓');
+  alert('Test odoslaný. Ak máš v appke ntfy prihlásený kanál „'+t+'", o chvíľu ti príde.');
 });
 function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); renderCalendar(); recompute(); }
 function readRate(){ return parseFloat(($('cRate').value||'').replace(',','.'))||0; }
@@ -852,7 +852,7 @@ function editingNow(){ const a=document.activeElement; return a && (a.tagName===
 function startPolling(){
   if(pollTimer || !(CLOUD && accessToken)) return;
   pollTimer=setInterval(async ()=>{
-    if(!accessToken || editingNow() || outbox.length) return;   // neÄÃ­taj, kÃ½m mÃ¡Å¡ neodoslanÃ© zÃ¡pisy
+    if(!accessToken || editingNow() || outbox.length) return;   // nečítaj, kým máš neodoslané zápisy
     try{ await loadAll(); renderAll(); }catch(e){}
   }, 10000);
   setInterval(flushOutbox, 5000);
@@ -870,7 +870,7 @@ function renderStats(){
 /* ---------------- tabs ---------------- */
 
 
-/* ---------------- kalendÃ¡r ---------------- */
+/* ---------------- kalendár ---------------- */
 const DRV_COLORS=['#b691f0','#6ba3e8','#55b184','#dfae3f','#e26060','#5bc8c8','#e88ac3','#a8b46a'];
 function driverColor(id){ if(!id) return '#8b8f97'; const i=state.drivers.findIndex(d=>d.id===id); return i<0?'#8b8f97':DRV_COLORS[i%DRV_COLORS.length]; }
 let calYM='', calDay='';
@@ -881,12 +881,12 @@ function renderCalendar(){
   const [Y,Mo]=calYM.split('-').map(Number);
   $('calTitle').textContent=monthLabel(calYM);
   const first=new Date(Y,Mo-1,1), dim=new Date(Y,Mo,0).getDate();
-  const off=(first.getDay()+6)%7; // pondelok prvÃ½
+  const off=(first.getDay()+6)%7; // pondelok prvý
   const inMonth=state.vehicles.filter(v=>v.startDate && monthKey(v.startDate)===calYM);
   const byDay={}; inMonth.forEach(v=>{ (byDay[v.startDate]=byDay[v.startDate]||[]).push(v); });
   const today=todayISO();
   const p=n=>String(n).padStart(2,'0');
-  let html='<div class="cal-dow">Po</div><div class="cal-dow">Ut</div><div class="cal-dow">St</div><div class="cal-dow">Å t</div><div class="cal-dow">Pi</div><div class="cal-dow">So</div><div class="cal-dow">Ne</div>';
+  let html='<div class="cal-dow">Po</div><div class="cal-dow">Ut</div><div class="cal-dow">St</div><div class="cal-dow">Št</div><div class="cal-dow">Pi</div><div class="cal-dow">So</div><div class="cal-dow">Ne</div>';
   for(let i=0;i<off;i++) html+='<div class="cal-cell other"></div>';
   for(let d=1;d<=dim;d++){
     const iso=Y+'-'+p(Mo)+'-'+p(d);
@@ -895,13 +895,13 @@ function renderCalendar(){
     const perDrv={}; cars.forEach(v=>{ if(v.driverId&&v.status!=='vybavene'){ (perDrv[v.driverId]=perDrv[v.driverId]||[]).push(v); } });
     Object.values(perDrv).forEach(a=>{ if(a.length>1) a.forEach(v=>clashIds.add(v.id)); });
     html+=`<div class="cal-cell${iso===today?' today':''}${iso===calDay?' selected':''}" data-calday="${iso}">
-      <div class="cal-daynum">${d}${clashIds.size?' â ï¸':''}</div>${cars.slice(0,3).map(v=>`<div class="cal-chip${v.status==='vybavene'?' done':''}${clashIds.has(v.id)?' clash':''}"${clashIds.has(v.id)?'':` style="border-left-color:${driverColor(v.driverId)}"`}>${esc(v.model||'auto')}</div>`).join('')}${cars.length>3?`<div class="cal-more">+${cars.length-3} ÄalÅ¡ie</div>`:''}
+      <div class="cal-daynum">${d}${clashIds.size?' ⚠️':''}</div>${cars.slice(0,3).map(v=>`<div class="cal-chip${v.status==='vybavene'?' done':''}${clashIds.has(v.id)?' clash':''}"${clashIds.has(v.id)?'':` style="border-left-color:${driverColor(v.driverId)}"`}>${esc(v.model||'auto')}</div>`).join('')}${cars.length>3?`<div class="cal-more">+${cars.length-3} ďalšie</div>`:''}
     </div>`;
   }
   grid.innerHTML=html;
-  /* legenda vodiÄov aktÃ­vnych v mesiaci */
+  /* legenda vodičov aktívnych v mesiaci */
   const drvIds=[...new Set(inMonth.map(v=>v.driverId).filter(Boolean))];
-  $('calLegend').innerHTML=drvIds.map(id=>`<span><i style="background:${driverColor(id)}"></i>${esc(driverName(id)||'?')}</span>`).join('')+(inMonth.some(v=>!v.driverId)?'<span><i style="background:#8b8f97"></i>Bez vodiÄa</span>':'');
+  $('calLegend').innerHTML=drvIds.map(id=>`<span><i style="background:${driverColor(id)}"></i>${esc(driverName(id)||'?')}</span>`).join('')+(inMonth.some(v=>!v.driverId)?'<span><i style="background:#8b8f97"></i>Bez vodiča</span>':'');
   grid.querySelectorAll('[data-calday]').forEach(c=>c.addEventListener('click',()=>{ calDay=(calDay===c.dataset.calday?'':c.dataset.calday); renderCalendar(); }));
   renderCalDetail(byDay);
 }
@@ -909,24 +909,24 @@ function renderCalDetail(byDay){
   const el=$('calDetail'); if(!el) return;
   if(!calDay || monthKey(calDay)!==calYM){ el.innerHTML=inMonthHint(byDay); return; }
   const cars=byDay[calDay]||[];
-  if(!cars.length){ el.innerHTML='<div class="drv-col-empty">'+fmtDate(calDay)+': Å¾iadne prepravy.</div>'; return; }
+  if(!cars.length){ el.innerHTML='<div class="drv-col-empty">'+fmtDate(calDay)+': žiadne prepravy.</div>'; return; }
   el.innerHTML='<div class="ov-head">'+fmtDate(calDay)+'</div>'+cars.map(v=>`
     <div class="ov-row" style="grid-template-columns:auto 1fr auto">
       <i style="width:9px;height:9px;border-radius:50%;display:inline-block;background:${driverColor(v.driverId)}"></i>
-      <span><strong>${esc(v.model||'auto')}</strong>${(v.from||v.to)?` <span style="color:var(--muted)">Â· ${esc(v.from||'?')} â ${esc(v.to||'?')}</span>`:''}<br><span style="color:var(--muted); font-size:12px">${esc(v.driverId?(driverName(v.driverId)||''):'bez vodiÄa')} Â· ${STATUSES[v.status]?STATUSES[v.status].label:v.status}${v.inTransit?' Â· v preprave ð':''}</span></span>
-      <button class="btn btn-ghost" data-caledit="${v.id}" style="padding:6px 12px; font-size:12.5px">UpraviÅ¥</button>
+      <span><strong>${esc(v.model||'auto')}</strong>${(v.from||v.to)?` <span style="color:var(--muted)">· ${esc(v.from||'?')} → ${esc(v.to||'?')}</span>`:''}<br><span style="color:var(--muted); font-size:12px">${esc(v.driverId?(driverName(v.driverId)||''):'bez vodiča')} · ${STATUSES[v.status]?STATUSES[v.status].label:v.status}${v.inTransit?' · v preprave 🚚':''}</span></span>
+      <button class="btn btn-ghost" data-caledit="${v.id}" style="padding:6px 12px; font-size:12.5px">Upraviť</button>
     </div>`).join('');
   el.querySelectorAll('[data-caledit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.caledit); switchTab('vehicles'); window.scrollTo({top:0,behavior:'smooth'}); }));
 }
 function inMonthHint(byDay){
   const n=Object.values(byDay).reduce((s,a)=>s+a.length,0);
-  return '<div class="result-sub">'+(n?`${n} preprav tento mesiac â klikni na deÅ pre detail.`:'Tento mesiac nemÃ¡ Å¾iadne prepravy so zadanÃ½m zaÄiatkom.')+'</div>';
+  return '<div class="result-sub">'+(n?`${n} preprav tento mesiac — klikni na deň pre detail.`:'Tento mesiac nemá žiadne prepravy so zadaným začiatkom.')+'</div>';
 }
 $('calPrev').addEventListener('click',()=>{ const [y,m]=calYM.split('-').map(Number); calYM=ymOf(new Date(y,m-2,1)); calDay=''; renderCalendar(); });
 $('calNext').addEventListener('click',()=>{ const [y,m]=calYM.split('-').map(Number); calYM=ymOf(new Date(y,m,1)); calDay=''; renderCalendar(); });
 $('calToday').addEventListener('click',()=>{ calYM=ymOf(new Date()); calDay=todayISO(); renderCalendar(); });
 
-/* ---------------- prehÄ¾ad ---------------- */
+/* ---------------- prehľad ---------------- */
 let ovSel='';
 const monthKey=iso=>iso?String(iso).slice(0,7):'';
 const vehMonth=v=>monthKey(v.startDate||v.endDate);
@@ -937,9 +937,9 @@ function driverCollisions(driverId, dateISO, exceptId){
 function collisionConfirm(driverId, dateISO, exceptId){
   const c=driverCollisions(driverId, dateISO, exceptId);
   if(!c.length) return true;
-  return confirm((driverName(driverId)||'VodiÄ')+' mÃ¡ '+fmtDate(dateISO)+' uÅ¾ priradenÃ©: '+c.map(v=>v.model||'auto').join(', ')+'.\n\nPriradiÅ¥ aj tak?');
+  return confirm((driverName(driverId)||'Vodič')+' má '+fmtDate(dateISO)+' už priradené: '+c.map(v=>v.model||'auto').join(', ')+'.\n\nPriradiť aj tak?');
 }
-function monthLabel(k){ const [y,m]=k.split('-'); const N=['januÃ¡r','februÃ¡r','marec','aprÃ­l','mÃ¡j','jÃºn','jÃºl','august','september','oktÃ³ber','november','december']; return (N[+m-1]||k)+' '+y; }
+function monthLabel(k){ const [y,m]=k.split('-'); const N=['január','február','marec','apríl','máj','jún','júl','august','september','október','november','december']; return (N[+m-1]||k)+' '+y; }
 function driverName(id){ const d=state.drivers.find(x=>x.id===id); return d?d.name:''; }
 function renderOverview(){
   const body=$('ovBody'); if(!body) return;
@@ -948,32 +948,32 @@ function renderOverview(){
   if(!ovSel || (ovSel!=='all' && !months.includes(ovSel))) ovSel=months[0]||'all';
   $('ovMonth').innerHTML =
     months.map(k=>`<option value="${k}"${k===ovSel?' selected':''}>${monthLabel(k)}</option>`).join('')
-    + `<option value="all"${ovSel==='all'?' selected':''}>CelÃ¡ histÃ³ria</option>`;
+    + `<option value="all"${ovSel==='all'?' selected':''}>Celá história</option>`;
 
   const items = ovSel==='all' ? done : done.filter(v=>vehMonth(v)===ovSel);
   if(!items.length){
-    body.innerHTML='<div class="empty">Za toto obdobie nie sÃº Å¾iadne vybavenÃ© prepravy.</div>';
+    body.innerHTML='<div class="empty">Za toto obdobie nie sú žiadne vybavené prepravy.</div>';
     return;
   }
   const km=items.reduce((s,v)=>s+(Number(v.distance)||0),0);
 
-  /* vodiÄi */
+  /* vodiči */
   const byDrv={};
   items.forEach(v=>{ const k=v.driverId||''; (byDrv[k]=byDrv[k]||{n:0,km:0}); byDrv[k].n++; byDrv[k].km+=Number(v.distance)||0; });
   const drvRows=Object.entries(byDrv)
-    .map(([id,x])=>({name:id?(driverName(id)||'(zmazanÃ½ vodiÄ)'):'Bez vodiÄa', ...x}))
+    .map(([id,x])=>({name:id?(driverName(id)||'(zmazaný vodič)'):'Bez vodiča', ...x}))
     .sort((a,b)=>b.n-a.n)
-    .map(d=>`<div class="ov-row"><span>${esc(d.name)}</span><span class="mono" style="color:var(--muted); font-size:12px">${d.km>0?Math.round(d.km).toLocaleString('sk-SK')+' km':''}</span><span><strong>${d.n}Ã</strong></span></div>`)
+    .map(d=>`<div class="ov-row"><span>${esc(d.name)}</span><span class="mono" style="color:var(--muted); font-size:12px">${d.km>0?Math.round(d.km).toLocaleString('sk-SK')+' km':''}</span><span><strong>${d.n}×</strong></span></div>`)
     .join('');
 
   body.innerHTML=`
     <div class="result" style="border-top:none; padding-top:4px; margin-top:6px">
-      <div class="res"><div class="res-lbl">OdvezenÃ© autÃ¡</div><div class="res-val big">${items.length}</div></div>
-      ${km>0?`<div class="res"><div class="res-lbl">NajazdenÃ© km</div><div class="res-val">${Math.round(km).toLocaleString('sk-SK')} km</div></div>`:''}
+      <div class="res"><div class="res-lbl">Odvezené autá</div><div class="res-val big">${items.length}</div></div>
+      ${km>0?`<div class="res"><div class="res-lbl">Najazdené km</div><div class="res-val">${Math.round(km).toLocaleString('sk-SK')} km</div></div>`:''}
     </div>
-    <div class="ov-head">VodiÄi</div>
-    ${drvRows||'<div class="drv-col-empty">Å½iadne priradenia.</div>'}
-    <div class="result-sub" style="margin-top:16px">AktuÃ¡lny stav: ${state.vehicles.filter(v=>v.status==='aktualne').length} aktuÃ¡lne Â· ${state.vehicles.filter(v=>v.status==='tyzdne').length} o 1â2 tÃ½Å¾dne Â· ${state.vehicles.filter(v=>v.inTransit).length} v preprave</div>`;
+    <div class="ov-head">Vodiči</div>
+    ${drvRows||'<div class="drv-col-empty">Žiadne priradenia.</div>'}
+    <div class="result-sub" style="margin-top:16px">Aktuálny stav: ${state.vehicles.filter(v=>v.status==='aktualne').length} aktuálne · ${state.vehicles.filter(v=>v.status==='tyzdne').length} o 1–2 týždne · ${state.vehicles.filter(v=>v.inTransit).length} v preprave</div>`;
 }
 $('ovMonth').addEventListener('change',()=>{ ovSel=$('ovMonth').value; renderOverview(); });
 
@@ -990,7 +990,7 @@ document.querySelectorAll('.tab').forEach(t=>{
 });
 
 
-/* ---- vybavenÃ©: mesaÄnÃ© skupiny ---- */
+/* ---- vybavené: mesačné skupiny ---- */
 let vybMonth='';
 function vybaveneView(list){
   const arr=[...list];
@@ -1001,15 +1001,15 @@ function vybaveneView(list){
   const cnt=k=>arr.filter(v=>vehMonth(v)===k).length;
   const chips='<div class="filters" style="margin-bottom:12px">'
     + months.map(k=>`<button class="filter${k===vybMonth?' active':''}" data-vmonth="${k}">${monthLabel(k)} <span style="opacity:.7">(${cnt(k)})</span></button>`).join('')
-    + (noDate.length?`<button class="filter${vybMonth==='none'?' active':''}" data-vmonth="none">Bez dÃ¡tumu <span style="opacity:.7">(${noDate.length})</span></button>`:'')
+    + (noDate.length?`<button class="filter${vybMonth==='none'?' active':''}" data-vmonth="none">Bez dátumu <span style="opacity:.7">(${noDate.length})</span></button>`:'')
     + '</div>';
   const items=(vybMonth==='none'?noDate:arr.filter(v=>vehMonth(v)===vybMonth))
     .sort((a,b)=>String(b.startDate||b.endDate||'').localeCompare(String(a.startDate||a.endDate||'')) || (b.createdAt||0)-(a.createdAt||0));
-  return chips + (items.length?'<div class="list">'+items.map(vehCard).join('')+'</div>':'<div class="empty">V tomto mesiaci nie sÃº Å¾iadne vybavenÃ© autÃ¡.</div>');
+  return chips + (items.length?'<div class="list">'+items.map(vehCard).join('')+'</div>':'<div class="empty">V tomto mesiaci nie sú žiadne vybavené autá.</div>');
 }
-/* ================= VOZIDLÃ ================= */
+/* ================= VOZIDLÁ ================= */
 function driverOptions(selected){
-  let o = '<option value="">â nepriradenÃ½ â</option>';
+  let o = '<option value="">— nepriradený —</option>';
   state.drivers.forEach(d=>{ o += `<option value="${d.id}" ${d.id===selected?'selected':''}>${esc(d.name)}</option>`; });
   return o;
 }
@@ -1021,8 +1021,8 @@ function fmtMs(ms){ if(!ms) return ''; const d=new Date(ms); const p=n=>String(n
 function vehFormReset(){
   ['vModel','vVin','vScCode','vFrom','vTo','vNote','vStart','vPrice','vCost'].forEach(i=>$(i).value='');
   $('vStatus').value='aktualne'; $('vDriver').value=''; $('vInTransit').checked=false; $('vCompany').value='selected';
-  editVeh=null; $('vehFormTitle').textContent='PridaÅ¥ vozidlo na odvoz';
-  $('vSubmit').textContent='PridaÅ¥'; $('vCancel').classList.add('hidden');
+  editVeh=null; $('vehFormTitle').textContent='Pridať vozidlo na odvoz';
+  $('vSubmit').textContent='Pridať'; $('vCancel').classList.add('hidden');
 }
 $('vSubmit').addEventListener('click', async ()=>{
   const model=$('vModel').value.trim(); if(!model) return;
@@ -1034,11 +1034,11 @@ $('vSubmit').addEventListener('click', async ()=>{
   if(editVeh){
     const i=state.vehicles.findIndex(v=>v.id===editVeh);
     if(i>-1){ state.vehicles[i]={...state.vehicles[i],...data}; saveVehicle(state.vehicles[i]); }
-    else alert('Toto vozidlo medzitÃ½m niekto vymazal â zmeny sa neuloÅ¾ili.');
+    else alert('Toto vozidlo medzitým niekto vymazal — zmeny sa neuložili.');
   } else {
     const nv={id:uid(),createdAt:Date.now(),priority:'high',order:-1,createdBy:currentEmail(),...data};
     state.vehicles.unshift(nv); saveVehicle(nv);
-    if(getNotify().onNewVehicle!==false) notify('NovÃ© auto na odvoz', data.model + ((data.from||data.to)?(' Â· '+(data.from||'?')+' â '+(data.to||'?')):''));
+    if(getNotify().onNewVehicle!==false) notify('Nové auto na odvoz', data.model + ((data.from||data.to)?(' · '+(data.from||'?')+' → '+(data.to||'?')):''));
   }
   vehFormReset(); renderVehicles();
 });
@@ -1048,7 +1048,7 @@ $('vToPick').addEventListener('change', e=>{ if(e.target.value){ $('vTo').value=
 
 function renderCompanyFilters(){
   const cnt=(c)=> state.vehicles.filter(v=>v.status!=='vybavene' && companyOf(v)===c).length;
-  let h = `<button class="filter ${companyFilter==='all'?'active':''}" data-cf="all">VÅ¡etky firmy (${state.vehicles.filter(v=>v.status!=='vybavene').length})</button>`;
+  let h = `<button class="filter ${companyFilter==='all'?'active':''}" data-cf="all">Všetky firmy (${state.vehicles.filter(v=>v.status!=='vybavene').length})</button>`;
   Object.entries(COMPANIES).forEach(([k,c])=>{
     h += `<button class="filter ${companyFilter===k?'active':''}" data-cf="${k}"><span class="dot" style="background:${c.color}"></span>${c.label} (${cnt(k)})</button>`;
   });
@@ -1057,29 +1057,29 @@ function renderCompanyFilters(){
 }
 function renderVehFilters(){
   const counts = (k)=> state.vehicles.filter(v=>v.status===k && (companyFilter==='all'||companyOf(v)===companyFilter)).length;
-  let h = `<button class="filter ${vehFilter==='all'?'active':''}" data-f="all">VÅ¡etky (${state.vehicles.filter(v=>v.status!=='vybavene' && (companyFilter==='all'||companyOf(v)===companyFilter)).length})</button>`;
+  let h = `<button class="filter ${vehFilter==='all'?'active':''}" data-f="all">Všetky (${state.vehicles.filter(v=>v.status!=='vybavene' && (companyFilter==='all'||companyOf(v)===companyFilter)).length})</button>`;
   Object.entries(STATUSES).forEach(([k,s])=>{
     h += `<button class="filter ${vehFilter===k?'active':''}" data-f="${k}"><span class="dot" style="background:${s.color}"></span>${s.label} (${counts(k)})</button>`;
   });
   $('vehFilters').innerHTML=h;
   $('vehFilters').querySelectorAll('.filter').forEach(b=> b.addEventListener('click',()=>{ vehFilter=b.dataset.f; renderVehicles(); }));
 }
-const PRIOS = { high:{label:'VysokÃ¡ priorita', color:'#e26060'}, med:{label:'StrednÃ¡ priorita', color:'#dfae3f'}, low:{label:'NÃ­zka priorita', color:'#55b184'} };
+const PRIOS = { high:{label:'Vysoká priorita', color:'#e26060'}, med:{label:'Stredná priorita', color:'#dfae3f'}, low:{label:'Nízka priorita', color:'#55b184'} };
 
 function vehCard(v){
   const s=STATUSES[v.status];
-  const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'â'; };
+  const dName=(id)=>{ const d=state.drivers.find(x=>x.id===id); return d?esc(d.name):'—'; };
   return `<div class="card${selectedVeh.has(v.id)?' card-selected':''}" data-id="${v.id}" style="border-left:3px solid ${s.color}">
       <div class="row-top">
-        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="OznaÄiÅ¥"><span class="drag-handle" title="Å¤ahaj medzi zÃ³nami">â®â®</span> ${esc(v.model)||'â'}</div>
+        <div class="model"><input type="checkbox" class="sel-chk" data-sel="${v.id}" ${selectedVeh.has(v.id)?'checked':''} title="Označiť"><span class="drag-handle" title="Ťahaj medzi zónami">⋮⋮</span> ${esc(v.model)||'—'}</div>
         <div class="iconbtns">
           <span class="company-badge" style="background:${COMPANIES[companyOf(v)].color}">${COMPANIES[companyOf(v)].label}</span>
-          <button class="iconbtn" data-edit="${v.id}">â</button>
-          <button class="iconbtn" data-del="${v.id}">ð</button>
+          <button class="iconbtn" data-edit="${v.id}">✎</button>
+          <button class="iconbtn" data-del="${v.id}">🗑</button>
         </div>
       </div>
       ${(v.scCode||v.vin)?`<div class="vin">${v.scCode?`<span class="sc-chip">${esc(v.scCode)}</span> `:''}${v.vin?`<span class="mono">${esc(v.vin.toUpperCase())}</span>`:''}</div>`:''}
-      <div class="route"><span class="route-pt">ð ${esc(v.from)||'â'}</span> â <span class="route-pt">${esc(v.to)||'â'}</span></div>
+      <div class="route"><span class="route-pt">📍 ${esc(v.from)||'—'}</span> → <span class="route-pt">${esc(v.to)||'—'}</span></div>
       <div class="meta">
         <select class="pill-select" data-status="${v.id}" style="color:${s.color};border-color:${s.color}">
           ${Object.entries(STATUSES).map(([k,st])=>`<option value="${k}" ${k===v.status?'selected':''}>${st.label}</option>`).join('')}
@@ -1087,16 +1087,16 @@ function vehCard(v){
         <select class="pill-select" data-driver="${v.id}">${driverOptions(v.driverId)}</select>
         ${Number(v.distance)>0?`<span class="tag">${kmF(v.distance)} km</span>`:''}
         ${Number(v.transportPrice)>0?`<span class="tag price-tag" title="Cena pre klienta">${eur(v.transportPrice)}</span>`:''}
-        ${Number(v.costPrice)>0?`<span class="tag cost-tag" title="NaÅ¡a cena / nÃ¡klad">${eur(v.costPrice)}</span>`:''}
-        ${(Number(v.transportPrice)>0&&Number(v.costPrice)>0)?`<span class="tag margin-tag" title="MarÅ¾a (klient â nÃ¡klad)">${(v.transportPrice-v.costPrice)>=0?'+':'â'}${eur(Math.abs(v.transportPrice-v.costPrice))}</span>`:''}
-        ${v.inTransit?`<span class="tag transit-on">ð V preprave</span>`:''}
+        ${Number(v.costPrice)>0?`<span class="tag cost-tag" title="Naša cena / náklad">${eur(v.costPrice)}</span>`:''}
+        ${(Number(v.transportPrice)>0&&Number(v.costPrice)>0)?`<span class="tag margin-tag" title="Marža (klient − náklad)">${(v.transportPrice-v.costPrice)>=0?'+':'−'}${eur(Math.abs(v.transportPrice-v.costPrice))}</span>`:''}
+        ${v.inTransit?`<span class="tag transit-on">🚚 V preprave</span>`:''}
       </div>
-      <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> AktuÃ¡lne v preprave</label>
-      ${v.driverId?`<div class="driver-line">PriradenÃ½: <strong>${dName(v.driverId)}</strong></div>`:''}
-      ${(v.startDate||v.endDate)?`<div class="dates">ð ${v.startDate?fmtDate(v.startDate):'â'}${(v.status!=='vybavene'&&driverCollisions(v.driverId,v.startDate,v.id).length)?` <span title="${esc('KolÃ­zia: '+driverCollisions(v.driverId,v.startDate,v.id).map(x=>x.model||'auto').join(', '))}">â ï¸</span>`:''}${v.endDate?` &nbsp;â&nbsp; â ${fmtDate(v.endDate)}`:''}</div>`:''}
-      ${v.note?`<div class="note">ð ${esc(v.note)}</div>`:''}
-      ${(v.createdBy||v.updatedBy)?`<div class="added-by">${v.createdBy?`pridal ${esc(nameFor(v.createdBy))}`:''}${(v.updatedBy&&v.updatedAt)?`${v.createdBy?' Â· ':''}upravil ${esc(nameFor(v.updatedBy))} ${fmtMs(v.updatedAt)}`:''}</div>`:''}
-      ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">ð ZobraziÅ¥ na mape</button>`:''}</div>${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="OznaÄiÅ¥ ako vybavenÃ©">â</button>`:''}`:''}
+      <label class="transit-toggle"><input type="checkbox" data-transit="${v.id}" ${v.inTransit?'checked':''}> Aktuálne v preprave</label>
+      ${v.driverId?`<div class="driver-line">Priradený: <strong>${dName(v.driverId)}</strong></div>`:''}
+      ${(v.startDate||v.endDate)?`<div class="dates">🚚 ${v.startDate?fmtDate(v.startDate):'—'}${(v.status!=='vybavene'&&driverCollisions(v.driverId,v.startDate,v.id).length)?` <span title="${esc('Kolízia: '+driverCollisions(v.driverId,v.startDate,v.id).map(x=>x.model||'auto').join(', '))}">⚠️</span>`:''}${v.endDate?` &nbsp;→&nbsp; ✓ ${fmtDate(v.endDate)}`:''}</div>`:''}
+      ${v.note?`<div class="note">📝 ${esc(v.note)}</div>`:''}
+      ${(v.createdBy||v.updatedBy)?`<div class="added-by">${v.createdBy?`pridal ${esc(nameFor(v.createdBy))}`:''}${(v.updatedBy&&v.updatedAt)?`${v.createdBy?' · ':''}upravil ${esc(nameFor(v.updatedBy))} ${fmtMs(v.updatedAt)}`:''}</div>`:''}
+      ${((v.from||v.to)||v.status!=='vybavene')?`<div class="card-foot">${(v.from||v.to)?`<button class="btn btn-ghost veh-map-btn" data-map="${v.id}" style="padding:7px 13px; font-size:13px">📍 Zobraziť na mape</button>`:''}</div>${v.status!=='vybavene'?`<button class="done-btn" data-done="${v.id}" title="Označiť ako vybavené">✓</button>`:''}`:''}
     </div>`;
 }
 
@@ -1114,18 +1114,18 @@ function renderVehicles(){
     </div>`;
   };
   $('vehList').innerHTML = (list.length===0)
-    ? '<div class="empty">ZatiaÄ¾ Å¾iadne vozidlÃ¡. Pridaj prvÃ© hore.</div>'
+    ? '<div class="empty">Zatiaľ žiadne vozidlá. Pridaj prvé hore.</div>'
     : (vehFilter==='vybavene'
         ? vybaveneView(list)
         : '<div id="vehZones">'+zone('high')+zone('med')+zone('low')+'</div>');
 
-  $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.del); if(v && !confirm('VymazaÅ¥ â'+(v.model||'vozidlo')+'â? Akcia je nenÃ¡vratnÃ¡.')) return; deleteVehicleRow(b.dataset.del); state.vehicles=state.vehicles.filter(x=>x.id!==b.dataset.del); renderVehicles(); }));
+  $('vehList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.del); if(v && !confirm('Vymazať „'+(v.model||'vozidlo')+'“? Akcia je nenávratná.')) return; deleteVehicleRow(b.dataset.del); state.vehicles=state.vehicles.filter(x=>x.id!==b.dataset.del); renderVehicles(); }));
   $('vehList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>{ startEditVeh(b.dataset.edit); }));
   $('vehList').querySelectorAll('[data-status]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.status); if(v){v.status=sel.value; if(v.status==='vybavene'){ v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); } saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': '+STATUSES[v.status].label); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){ if(sel.value && !collisionConfirm(sel.value, v.startDate, v.id)){ sel.value=v.driverId||''; return; } v.driverId=sel.value; saveVehicle(v); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
   $('vehList').querySelectorAll('[data-vmonth]').forEach(b=>b.addEventListener('click',()=>{ vybMonth=b.dataset.vmonth; renderVehicles(); }));
-  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': VybavenÃ©'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
   $('vehList').querySelectorAll('[data-sel]').forEach(c=>c.addEventListener('change',()=>{
     const id=c.dataset.sel;
     if(c.checked) selectedVeh.add(id); else selectedVeh.delete(id);
@@ -1133,7 +1133,7 @@ function renderVehicles(){
     updateSelBar();
   }));
   updateSelBar();
-  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ if(c.checked && !v.startDate && v.driverId && !collisionConfirm(v.driverId, todayISO(), v.id)){ c.checked=false; return; } v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); saveVehicle(v); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave ð'); renderVehicles(); } }));
+  $('vehList').querySelectorAll('[data-transit]').forEach(c=>c.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===c.dataset.transit); if(v){ if(c.checked && !v.startDate && v.driverId && !collisionConfirm(v.driverId, todayISO(), v.id)){ c.checked=false; return; } v.inTransit=c.checked; if(c.checked && !v.startDate) v.startDate=todayISO(); saveVehicle(v); if(c.checked && getNotify().onTransit!==false) notify('Auto v preprave', v.model+' je teraz v preprave 🚚'); renderVehicles(); } }));
 
   if(window.Sortable){
     $('vehList').querySelectorAll('.veh-zone').forEach(z=>{
@@ -1164,7 +1164,7 @@ async function showVehicleOnMap(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
   switchTab('calc');
   await ensureMap();
-  // vyÄisti existujÃºce body
+  // vyčisti existujúce body
   stops.forEach(s=>{ if(s.marker){ if(engine==='google') s.marker.setMap(null); else map.removeLayer(s.marker); } });
   if(engine==='google' && dirRenderer) dirRenderer.set('directions',null);
   if(routeLine && map){ map.removeLayer(routeLine); routeLine=null; }
@@ -1179,14 +1179,14 @@ function startEditVeh(id){
   $('vModel').value=v.model||''; $('vVin').value=v.vin||''; $('vScCode').value=v.scCode||''; $('vFrom').value=v.from||''; $('vTo').value=v.to||'';
   $('vStatus').value=v.status||'aktualne'; refreshDriverSelect(); $('vDriver').value=v.driverId||'';
   $('vNote').value=v.note||''; $('vInTransit').checked=!!v.inTransit; $('vStart').value=v.startDate||''; $('vPrice').value=v.transportPrice||''; $('vCost').value=v.costPrice||''; $('vCompany').value=companyOf(v);
-  editVeh=id; $('vehFormTitle').textContent='UpraviÅ¥ vozidlo'; $('vSubmit').textContent='UloÅ¾iÅ¥'; $('vCancel').classList.remove('hidden');
+  editVeh=id; $('vehFormTitle').textContent='Upraviť vozidlo'; $('vSubmit').textContent='Uložiť'; $('vCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ================= VODIÄI ================= */
+/* ================= VODIČI ================= */
 function drvFormReset(){
   ['dName','dRate','dPhone','dEmail','dNote'].forEach(i=>$(i).value=''); $('dType').value='interny'; $('dTier').value='hlavny';
-  editDrv=null; $('drvFormTitle').textContent='PridaÅ¥ vodiÄa'; $('dSubmit').textContent='PridaÅ¥'; $('dCancel').classList.add('hidden');
+  editDrv=null; $('drvFormTitle').textContent='Pridať vodiča'; $('dSubmit').textContent='Pridať'; $('dCancel').classList.add('hidden');
 }
 $('dSubmit').addEventListener('click', async ()=>{
   const name=$('dName').value.trim(); if(!name) return;
@@ -1194,11 +1194,11 @@ $('dSubmit').addEventListener('click', async ()=>{
   if(editDrv){
     const i=state.drivers.findIndex(d=>d.id===editDrv);
     if(i>-1){ state.drivers[i]={...state.drivers[i],...data}; saveDriver(state.drivers[i]); }
-    else alert('Tohto vodiÄa medzitÃ½m niekto vymazal â zmeny sa neuloÅ¾ili.');
+    else alert('Tohto vodiča medzitým niekto vymazal — zmeny sa neuložili.');
   } else {
     const nd={id:uid(),...data};
     state.drivers.push(nd); saveDriver(nd);
-    if(getNotify().onNewDriver!==false) notify('NovÃ½ vodiÄ', data.name + (data.type==='externy'?' (externÃ½)':' (internÃ½)'));
+    if(getNotify().onNewDriver!==false) notify('Nový vodič', data.name + (data.type==='externy'?' (externý)':' (interný)'));
   }
   drvFormReset(); renderDrivers(); refreshDriverSelect();
 });
@@ -1208,33 +1208,33 @@ function driverCard(d){
   return `
     <div class="card" data-id="${d.id}">
       <div class="row-top">
-        <div class="model"><span class="drag-handle" title="Å¤ahaj">â®â®</span> ${esc(d.name)}</div>
-        <div class="iconbtns"><button class="iconbtn" data-edit="${d.id}">â</button><button class="iconbtn" data-del="${d.id}">ð</button></div>
+        <div class="model"><span class="drag-handle" title="Ťahaj">⋮⋮</span> ${esc(d.name)}</div>
+        <div class="iconbtns"><button class="iconbtn" data-edit="${d.id}">✎</button><button class="iconbtn" data-del="${d.id}">🗑</button></div>
       </div>
       <div class="drv-meta">
-        <span class="tag ${d.type==='interny'?'tag-solid':''}">${d.type==='interny'?'InternÃ½':'ExternÃ½'}</span>
+        <span class="tag ${d.type==='interny'?'tag-solid':''}">${d.type==='interny'?'Interný':'Externý'}</span>
         ${Number(d.rate)>0?`<span class="tag">${eur(d.rate)} / km</span>`:''}
         <select class="pill-select" data-tier="${d.id}">
-          <option value="hlavny" ${(d.tier||'hlavny')==='hlavny'?'selected':''}>HlavnÃ½</option>
-          <option value="zalozny" ${d.tier==='zalozny'?'selected':''}>ZÃ¡loÅ¾nÃ½</option>
+          <option value="hlavny" ${(d.tier||'hlavny')==='hlavny'?'selected':''}>Hlavný</option>
+          <option value="zalozny" ${d.tier==='zalozny'?'selected':''}>Záložný</option>
         </select>
       </div>
       <div class="contacts">
-        ${d.phone?`<a class="contact" href="tel:${esc(d.phone)}">ð ${esc(d.phone)}</a>`:''}
-        ${d.email?`<a class="contact" href="mailto:${esc(d.email)}">â ${esc(d.email)}</a>`:''}
+        ${d.phone?`<a class="contact" href="tel:${esc(d.phone)}">📞 ${esc(d.phone)}</a>`:''}
+        ${d.email?`<a class="contact" href="mailto:${esc(d.email)}">✉ ${esc(d.email)}</a>`:''}
       </div>
-      ${d.note?`<div class="note">ð ${esc(d.note)}</div>`:''}
+      ${d.note?`<div class="note">📝 ${esc(d.note)}</div>`:''}
     </div>`;
 }
 function renderDrivers(){
-  if(state.drivers.length===0){ $('drvList').innerHTML='<div class="empty">ZatiaÄ¾ Å¾iadni vodiÄi. Pridaj prvÃ©ho hore.</div>'; return; }
+  if(state.drivers.length===0){ $('drvList').innerHTML='<div class="empty">Zatiaľ žiadni vodiči. Pridaj prvého hore.</div>'; return; }
   ensureDriverOrder();
   const byOrder=(a,b)=>(a.order??0)-(b.order??0);
   const main=state.drivers.filter(d=>(d.tier||'hlavny')==='hlavny').sort(byOrder);
   const back=state.drivers.filter(d=>d.tier==='zalozny').sort(byOrder);
   const col=(title,arr,tier)=>`<div class="drv-col"><div class="drv-col-head">${title} <span class="drv-col-count">${arr.length}</span></div><div class="drv-drop" data-coltier="${tier}">${arr.map(driverCard).join('')}</div></div>`;
-  $('drvList').innerHTML='<div class="drv-cols">'+col('HlavnÃ­',main,'hlavny')+col('ZÃ¡loÅ¾nÃ­',back,'zalozny')+'</div>';
-  $('drvList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const d=state.drivers.find(x=>x.id===b.dataset.del); if(d && !confirm('VymazaÅ¥ vodiÄa â'+d.name+'â? Akcia je nenÃ¡vratnÃ¡.')) return; state.drivers=state.drivers.filter(x=>x.id!==b.dataset.del); deleteDriverRow(b.dataset.del); renderDrivers(); refreshDriverSelect(); renderVehicles(); }));
+  $('drvList').innerHTML='<div class="drv-cols">'+col('Hlavní',main,'hlavny')+col('Záložní',back,'zalozny')+'</div>';
+  $('drvList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ const d=state.drivers.find(x=>x.id===b.dataset.del); if(d && !confirm('Vymazať vodiča „'+d.name+'“? Akcia je nenávratná.')) return; state.drivers=state.drivers.filter(x=>x.id!==b.dataset.del); deleteDriverRow(b.dataset.del); renderDrivers(); refreshDriverSelect(); renderVehicles(); }));
   $('drvList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>startEditDrv(b.dataset.edit)));
   $('drvList').querySelectorAll('[data-tier]').forEach(sel=>sel.addEventListener('change',async()=>{ const d=state.drivers.find(x=>x.id===sel.dataset.tier); if(d){ d.tier=sel.value; saveDriver(d); renderDrivers(); } }));
   if(window.Sortable){
@@ -1264,11 +1264,11 @@ function startEditDrv(id){
   const d=state.drivers.find(x=>x.id===id); if(!d) return;
   $('dName').value=d.name||''; $('dType').value=d.type||'interny'; $('dTier').value=d.tier||'hlavny'; $('dRate').value=d.rate||'';
   $('dPhone').value=d.phone||''; $('dEmail').value=d.email||''; $('dNote').value=d.note||'';
-  editDrv=id; $('drvFormTitle').textContent='UpraviÅ¥ vodiÄa'; $('dSubmit').textContent='UloÅ¾iÅ¥'; $('dCancel').classList.remove('hidden');
+  editDrv=id; $('drvFormTitle').textContent='Upraviť vodiča'; $('dSubmit').textContent='Uložiť'; $('dCancel').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ================= KALKULAÄKA + MAPA (viacbodovÃ¡ trasa) ================= */
+/* ================= KALKULAČKA + MAPA (viacbodová trasa) ================= */
 let engine=null;                          // 'google' | 'leaflet'
 let map=null, routeLine=null;             // leaflet
 let gMap=null, dirService=null, dirRenderer=null;  // google
@@ -1465,7 +1465,7 @@ async function computeRoute(){
           map.fitBounds(routeLine.getBounds(),{padding:[40,40]}); drawn=true;
         }
       }
-    }catch(e){ /* Geoapify nedostupnÃ© â padÃ¡ na OSRM */ }
+    }catch(e){ /* Geoapify nedostupné → padá na OSRM */ }
   }
   if(!drawn) try{
     const coordStr=pts.map(p=>p.lng+','+p.lat).join(';');
@@ -1513,12 +1513,12 @@ async function placeSuggest(query,i,inp){
     try{
       const data=await fetchJson('https://api.geoapify.com/v1/geocode/autocomplete?text='+encodeURIComponent(query)+'&limit=6&bias=proximity:19.5,48.7&apiKey='+GEOAPIFY_KEY);
       renderDropdown(inp,i,(data.features||[])); return;
-    }catch(e){ /* Geoapify nedostupnÃ© â skÃºs Photon */ }
+    }catch(e){ /* Geoapify nedostupné → skús Photon */ }
   }
   try{
     const data=await fetchJson('https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=6&lang=default&lat=48.7&lon=19.5');
     renderDropdown(inp,i,(data.features||[]));
-  }catch(e){ /* sieÅ¥ nedostupnÃ¡ â ticho, ostÃ¡va tlaÄidlo NÃ¡jsÅ¥ */ }
+  }catch(e){ /* sieť nedostupná → ticho, ostáva tlačidlo Nájsť */ }
 }
 function featLabel(f){
   const p=f.properties||{};
@@ -1530,7 +1530,7 @@ function renderDropdown(inp,i,features){
   closeDropdown();
   const row=inp.closest('.stop-row'); if(!row) return;
   const dd=document.createElement('div'); dd.className='ac-dd';
-  if(!features.length){ dd.innerHTML='<div class="ac-empty">NiÄ sa nenaÅ¡lo</div>'; row.appendChild(dd); return; }
+  if(!features.length){ dd.innerHTML='<div class="ac-empty">Nič sa nenašlo</div>'; row.appendChild(dd); return; }
   features.forEach(f=>{
     const L=featLabel(f);
     const it=document.createElement('div'); it.className='ac-item';
@@ -1572,7 +1572,7 @@ async function geocodeStop(i){
       try{
         const g=await fetchJson('https://api.geoapify.com/v1/geocode/search?text='+encodeURIComponent(query)+'&limit=1&bias=proximity:19.5,48.7&apiKey='+GEOAPIFY_KEY);
         f=(g.features||[])[0]||null;
-      }catch(e){ /* fallback niÅ¾Å¡ie */ }
+      }catch(e){ /* fallback nižšie */ }
     }
     if(!f){
       const data=await fetchJson('https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&limit=1&lang=default&lat=48.7&lon=19.5');
@@ -1593,7 +1593,7 @@ function recompute(estimate){
   const margin=cost*((Number($('cMpct').value)||0)/100)+(Number($('cMfix').value)||0);
   const client=cost+margin;
   $('rCost').textContent=eur(cost); $('rMargin').textContent=eur(margin); $('rClient').textContent=eur(client);
-  if(dist>0) $('rSub').textContent=`${kmF(dist)} km Ã ${eur(rate)}/km${estimate?'  Â·  vzdialenosÅ¥ je odhad (vzduÅ¡nÃ¡ Ã 1,3)':''}`;
+  if(dist>0) $('rSub').textContent=`${kmF(dist)} km × ${eur(rate)}/km${estimate?'  ·  vzdialenosť je odhad (vzdušná × 1,3)':''}`;
 }
 ['cDist','cRate','cMpct','cMfix'].forEach(i=>$(i).addEventListener('input',()=>recompute()));
 $('cSaveRate').addEventListener('click', async ()=>{ state.settings.ratePerKm=readRate(); saveSettings(); });
@@ -1603,35 +1603,35 @@ $('cSave').addEventListener('click', async ()=>{
   const rate=readRate(); const cost=dist*rate;
   const margin=cost*((Number($('cMpct').value)||0)/100)+(Number($('cMfix').value)||0); const client=cost+margin;
   const labels = stops.map((s,i)=> s.label.trim() || (s.latlng?LETTER(i):'')).filter(Boolean);
-  const label = labels.join(' â ') || 'Trasa';
+  const label = labels.join(' → ') || 'Trasa';
   const nr={ id:uid(), label, distance:dist, rate, cost, margin, client, createdAt:Date.now() };
   state.routes.unshift(nr); saveRoute(nr); renderRoutes();
   $('cMpct').value=''; $('cMfix').value='';
 });
 function renderRoutes(){
-  if(state.routes.length===0){ $('rtList').innerHTML='<div class="empty">ZatiaÄ¾ Å¾iadne uloÅ¾enÃ© trasy.</div>'; return; }
+  if(state.routes.length===0){ $('rtList').innerHTML='<div class="empty">Zatiaľ žiadne uložené trasy.</div>'; return; }
   $('rtList').innerHTML='<div class="list">'+state.routes.map(x=>`
     <div class="card">
       <div class="row-top">
-        <div class="route"><span class="route-pt">${esc(x.label || ((x.from||'A')+' â '+(x.to||'B')))}</span></div>
-        <button class="iconbtn" data-del="${x.id}">ð</button>
+        <div class="route"><span class="route-pt">${esc(x.label || ((x.from||'A')+' → '+(x.to||'B')))}</span></div>
+        <button class="iconbtn" data-del="${x.id}">🗑</button>
       </div>
       <div class="rt-row">
         <span class="tag">${kmF(x.distance)} km</span><span class="tag">${eur(x.rate)}/km</span>
-        <span class="rt-cost">nÃ¡klad ${eur(x.cost)}</span><span class="rt-client">klient ${eur(x.client)}</span>
+        <span class="rt-cost">náklad ${eur(x.cost)}</span><span class="rt-client">klient ${eur(x.client)}</span>
       </div>
     </div>`).join('')+'</div>';
   $('rtList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',async()=>{ state.routes=state.routes.filter(x=>x.id!==b.dataset.del); deleteRouteRow(b.dataset.del); renderRoutes(); }));
 }
 
 /* ---------------- init ---------------- */
-function withTimeout(p,ms,label){ return Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error((label||'OperÃ¡cia')+' trvÃ¡ prÃ­liÅ¡ dlho')),ms))]); }
+function withTimeout(p,ms,label){ return Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error((label||'Operácia')+' trvá príliš dlho')),ms))]); }
 async function bootData(){
   $('notifyBtn').classList.remove('hidden');
   $('settingsBtn').classList.remove('hidden');
   const em=currentEmail(); if(em){ $('whoami').textContent=em; $('whoami').classList.remove('hidden'); }
-  try{ await withTimeout(loadAll(),12000,'NaÄÃ­tanie dÃ¡t'); }
-  catch(e){ dbg('â NaÄÃ­tanie zlyhalo: '+((e&&e.message)||e)); alert('Nepodarilo sa naÄÃ­taÅ¥ dÃ¡ta zo servera. Skontroluj pripojenie a obnov strÃ¡nku.'); }
+  try{ await withTimeout(loadAll(),12000,'Načítanie dát'); }
+  catch(e){ dbg('✗ Načítanie zlyhalo: '+((e&&e.message)||e)); alert('Nepodarilo sa načítať dáta zo servera. Skontroluj pripojenie a obnov stránku.'); }
   renderAll();
   if(CLOUD && accessToken) startPolling();
   flushOutbox(); syncBadge();
@@ -1641,16 +1641,16 @@ async function doLogin(){
   $('loginErr').textContent='';
   const email=$('loginEmail').value.trim(), password=$('loginPass').value;
   if(!email||!password){ $('loginErr').textContent='Zadaj e-mail aj heslo.'; return; }
-  const btn=$('loginBtn'); btn.disabled=true; const old=btn.textContent; btn.textContent='Prihlasujemâ¦';
+  const btn=$('loginBtn'); btn.disabled=true; const old=btn.textContent; btn.textContent='Prihlasujem…';
   try{
-    await withTimeout(sbLogin(email,password),8000,'PrihlÃ¡senie');
+    await withTimeout(sbLogin(email,password),8000,'Prihlásenie');
     authExpired=false; showLogin(false); $('logoutBtn').classList.remove('hidden'); await bootData();
-    dbg('â hotovo'); return;
+    dbg('✓ hotovo'); return;
   }catch(e){
     const m=(e&&e.message)||'';
-    dbg('â KONIEC: '+m);
-    $('loginErr').textContent = /invalid login|credentials/i.test(m) ? 'NesprÃ¡vny e-mail alebo heslo.'
-      : (/not confirmed/i.test(m) ? 'PouÅ¾Ã­vateÄ¾ nie je potvrdenÃ½ (zaÅ¡krtni Auto Confirm).'
+    dbg('✗ KONIEC: '+m);
+    $('loginErr').textContent = /invalid login|credentials/i.test(m) ? 'Nesprávny e-mail alebo heslo.'
+      : (/not confirmed/i.test(m) ? 'Používateľ nie je potvrdený (zaškrtni Auto Confirm).'
       : ('Chyba: '+m));
   }
   btn.disabled=false; btn.textContent=old;
