@@ -992,8 +992,18 @@ document.querySelectorAll('.tab').forEach(t=>{
 
 /* ---- vybavené: mesačné skupiny ---- */
 let vybMonth='';
+let vybSearch='';
 function vybaveneView(list){
   const arr=[...list];
+  const search = `<input id="vybSearchInput" class="in mono" style="margin-bottom:12px" placeholder="Hľadať podľa VIN alebo SC čísla…" value="${esc(vybSearch)}">`;
+  const q=(vybSearch||'').trim().toLowerCase();
+  if(q){
+    const hits=arr.filter(v=> (v.vin||'').toLowerCase().includes(q) || (v.scCode||'').toLowerCase().includes(q) || (v.model||'').toLowerCase().includes(q))
+      .sort((a,b)=>String(b.startDate||b.endDate||'').localeCompare(String(a.startDate||a.endDate||'')) || (b.createdAt||0)-(a.createdAt||0));
+    return search + (hits.length
+      ? `<div class="dates" style="margin:0 0 10px">Nájdené: ${hits.length}</div><div class="list">`+hits.map(vehCard).join('')+'</div>'
+      : `<div class="empty">Nič nenájdené pre „${esc(vybSearch)}“.</div>`);
+  }
   const months=[...new Set(arr.map(vehMonth))].filter(Boolean).sort().reverse();
   const noDate=arr.filter(v=>!vehMonth(v));
   if(!vybMonth || (vybMonth!=='none' && !months.includes(vybMonth))) vybMonth=months[0]||(noDate.length?'none':'');
@@ -1005,7 +1015,7 @@ function vybaveneView(list){
     + '</div>';
   const items=(vybMonth==='none'?noDate:arr.filter(v=>vehMonth(v)===vybMonth))
     .sort((a,b)=>String(b.startDate||b.endDate||'').localeCompare(String(a.startDate||a.endDate||'')) || (b.createdAt||0)-(a.createdAt||0));
-  return chips + (items.length?'<div class="list">'+items.map(vehCard).join('')+'</div>':'<div class="empty">V tomto mesiaci nie sú žiadne vybavené autá.</div>');
+  return search + chips + (items.length?'<div class="list">'+items.map(vehCard).join('')+'</div>':'<div class="empty">V tomto mesiaci nie sú žiadne vybavené autá.</div>');
 }
 /* ================= VOZIDLÁ ================= */
 function driverOptions(selected){
@@ -1125,6 +1135,7 @@ function renderVehicles(){
   $('vehList').querySelectorAll('[data-driver]').forEach(sel=>sel.addEventListener('change',async()=>{ const v=state.vehicles.find(x=>x.id===sel.dataset.driver); if(v){ if(sel.value && !collisionConfirm(sel.value, v.startDate, v.id)){ sel.value=v.driverId||''; return; } v.driverId=sel.value; saveVehicle(v); renderVehicles();} }));
   $('vehList').querySelectorAll('[data-map]').forEach(b=>b.addEventListener('click',()=>{ showVehicleOnMap(b.dataset.map); }));
   $('vehList').querySelectorAll('[data-vmonth]').forEach(b=>b.addEventListener('click',()=>{ vybMonth=b.dataset.vmonth; renderVehicles(); }));
+  { const _vs=$('vybSearchInput'); if(_vs){ _vs.addEventListener('input',()=>{ vybSearch=_vs.value; const c=_vs.selectionStart; renderVehicles(); const n=$('vybSearchInput'); if(n){ n.focus(); try{ n.setSelectionRange(c,c); }catch(e){} } }); } }
   $('vehList').querySelectorAll('[data-done]').forEach(b=>b.addEventListener('click',async()=>{ const v=state.vehicles.find(x=>x.id===b.dataset.done); if(v){ v.status='vybavene'; v.inTransit=false; if(!v.endDate) v.endDate=todayISO(); saveVehicle(v); if(getNotify().onStatus!==false) notify('Zmena stavu', v.model+': Vybavené'); renderVehicles(); } }));
   $('vehList').querySelectorAll('[data-sel]').forEach(c=>c.addEventListener('change',()=>{
     const id=c.dataset.sel;
