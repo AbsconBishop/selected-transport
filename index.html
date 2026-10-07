@@ -470,7 +470,8 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
       </div>
       <div id="ovBody"></div>
     </div>
-    <section id="tab-trips" class="hidden">
+  </section>
+  <section id="tab-trips" class="hidden">
     <div class="card">
       <h3 class="form-title">Pridať jazdu</h3>
       <div class="grid">
@@ -1368,7 +1369,7 @@ async function ensureMap(){
 }
 function initLeaflet(){
   map=L.map('cMap',{zoomControl:true}).setView([SK_CENTER.lat,SK_CENTER.lng],7);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,attribution:'\u00A9 OpenStreetMap, \u00A9 CARTO'}).addTo(map);
+  L.tileLayer(hasGeoKey()?('https://maps.geoapify.com/v1/tile/dark-matter-dark-grey/{z}/{x}/{y}.png?apiKey='+GEOAPIFY_KEY):'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:20,attribution:'\u00A9 OpenStreetMap \u00A9 Geoapify'}).addTo(map);
   map.on('click',e=>addPointFromMap({lat:e.latlng.lat,lng:e.latlng.lng}));
   setTimeout(()=>map.invalidateSize(),60);
 }
