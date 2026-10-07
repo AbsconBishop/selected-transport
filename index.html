@@ -259,6 +259,13 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
   .result{flex-direction:column; gap:14px;}
   .logo{height:48px;}
 }
+.trip-summary{padding:18px}
+.trip-sum-head{font-size:16px; font-weight:700; margin-bottom:12px}
+.trip-sum-row{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14px}
+.trip-sum-row:last-child{border-bottom:none}
+.trip-sum-row>span:first-child{flex:1; min-width:0}
+.trip-sum-total{font-weight:700; border-top:2px solid var(--line); border-bottom:none; margin-top:4px; padding-top:10px}
+.trip-pay{color:#3f9d6b; font-weight:700; min-width:92px; text-align:right}
 </style>
 </head>
 <body>
@@ -334,6 +341,7 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
   <nav class="tabs">
     <button class="tab active" data-tab="vehicles">Vozidlá</button>
     <button class="tab" data-tab="drivers">Vodiči</button>
+    <button class="tab" data-tab="trips">Jazdy</button>
     <button class="tab" data-tab="calc">Kalkulačka trás</button>
     <button class="tab" data-tab="cal">Kalendár</button>
     <button class="tab" data-tab="stats">Prehľad</button>
@@ -462,6 +470,26 @@ input[type="date"].in::-webkit-calendar-picker-indicator{filter:invert(.7);}
       </div>
       <div id="ovBody"></div>
     </div>
+  <section id="tab-trips" class="hidden">
+    <div class="card">
+      <h3 class="form-title">Pridať jazdu</h3>
+      <div class="grid">
+        <div class="field"><label class="label">Dátum</label><input class="in" id="tDate" type="date"></div>
+        <div class="field"><label class="label">Vodič</label><select class="in" id="tDriver"></select></div>
+        <div class="field"><label class="label">Jazda</label><label class="chk"><input type="checkbox" id="tRound" checked> Tam a späť (spiatočne)</label></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label class="label">Zastávky (v poradí A → B → C …)</label>
+        <div id="tStops"></div>
+        <button class="btn btn-ghost" id="tAddStop" style="margin-top:8px; padding:7px 13px; font-size:13px">+ Pridať zastávku</button>
+      </div>
+      <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-top:14px">
+        <button class="btn btn-ghost" id="tCalc" style="padding:9px 14px">Vypočítať km</button>
+        <div class="field" style="margin:0"><label class="label">Kilometre (spolu)</label><input class="in" id="tKm" type="text" inputmode="decimal" placeholder="0" style="width:130px"></div>
+        <div id="tPreview" class="dates" style="margin:0 0 9px"></div>
+      </div>
+      <button class="btn btn-dark" id="tSubmit" style="margin-top:16px">Uložiť jazdu</button>
+    </div>
+    <div id="tripList"></div>
   </section>
 </div>
 
@@ -692,20 +720,22 @@ function saveSettings(){ queueOp({t:'up', table:'app_settings', rows:[{id:'main'
 
 async function loadAll(){
   dbg('4) Načítavam dáta z databázy…');
-  const [v,d,r,s]=await Promise.all([
+  const [v,d,r,s,t]=await Promise.all([
     rest('vehicles?select=*&deleted_at_ms=is.null').then(x=>x.json()),
     rest('drivers?select=*').then(x=>x.json()),
     rest('routes?select=*&order=created_at_ms.desc').then(x=>x.json()),
-    rest('app_settings?id=eq.main&select=data').then(x=>x.json())
+    rest('app_settings?id=eq.main&select=data').then(x=>x.json()),
+    rest('trips?select=*&deleted_at_ms=is.null&order=trip_date.desc').then(x=>x.json()).catch(()=>[])
   ]);
   state.vehicles=v.map(M.vehicles.from).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   state.drivers=d.map(M.drivers.from);
   state.routes=r.map(M.routes.from);
   state.settings=(s[0]&&s[0].data)||{};
+  state.trips=(Array.isArray(t)?t:[]).map(M.trips.from);
   dbg('5) Dáta načítané ✓ ('+state.vehicles.length+' áut, '+state.drivers.length+' vodičov)');
 }
 
-let state = { drivers:[], vehicles:[], routes:[], settings:{} };
+let state = { drivers:[], vehicles:[], routes:[], settings:{}, trips:[] };
 let editVeh=null, editDrv=null;
 let vehFilter='all';
 let companyFilter='all';
@@ -846,7 +876,7 @@ $('ntfyTest').addEventListener('click', async ()=>{
   await notify('SELECTED Transport','Testovacie oznámenie ✓');
   alert('Test odoslaný. Ak máš v appke ntfy prihlásený kanál „'+t+'", o chvíľu ti príde.');
 });
-function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); renderCalendar(); recompute(); }
+function renderAll(){ const r=Number(state.settings.ratePerKm); $('cRate').value=(Number.isFinite(r)&&r>0&&r<100)?String(r).replace('.',','):''; fillPlacePicks(); refreshDriverSelect(); renderStats(); renderVehicles(); renderDrivers(); renderRoutes(); renderStops(); renderOverview(); renderCalendar(); renderTrips(); recompute(); }
 function readRate(){ return parseFloat(($('cRate').value||'').replace(',','.'))||0; }
 
 function editingNow(){ const a=document.activeElement; return a && (a.tagName==='INPUT'||a.tagName==='SELECT'||a.tagName==='TEXTAREA'); }
@@ -1170,7 +1200,8 @@ async function onVehicleZoneDrop(){
 }
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===name));
-  ['vehicles','drivers','calc','stats','cal'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
+  ['vehicles','drivers','calc','stats','cal','trips'].forEach(n=>$('tab-'+n).classList.toggle('hidden', n!==name));
+  if(name==='trips') renderTrips();
 }
 async function showVehicleOnMap(id){
   const v=state.vehicles.find(x=>x.id===id); if(!v) return;
@@ -1667,6 +1698,107 @@ async function doLogin(){
   }
   btn.disabled=false; btn.textContent=old;
 }
+
+
+/* ================= JAZDY (evidencia jázd vodičov) ================= */
+M.trips={
+  to:t=>({id:t.id, trip_date:t.date||'', driver_id:t.driverId||'', stops:Array.isArray(t.stops)?t.stops:[], round_trip:t.round!==false, distance_km:num(t.km), rate:num(t.rate), payout:num(t.payout), note:t.note||'', created_at_ms:t.createdAt||Date.now(), created_by:t.createdBy||'', deleted_at_ms:t.deletedAt||null}),
+  from:r=>({id:r.id, date:r.trip_date||'', driverId:r.driver_id||'', stops:Array.isArray(r.stops)?r.stops:[], round:r.round_trip!==false, km:num(r.distance_km), rate:num(r.rate), payout:num(r.payout), note:r.note||'', createdAt:num(r.created_at_ms), createdBy:r.created_by||'', deletedAt:r.deleted_at_ms?num(r.deleted_at_ms):0})
+};
+function saveTrip(t){ queueOp({t:'up', table:'trips', rows:[M.trips.to(t)]}); }
+function deleteTripRow(id){ const t=state.trips.find(x=>x.id===id); const row=t?M.trips.to(t):{id:id}; row.deleted_at_ms=Date.now(); queueOp({t:'up', table:'trips', rows:[row]}); }
+
+async function tripGeocode(q){
+  if(!q||!q.trim()) return null;
+  if(hasGeoKey()){
+    try{ const g=await fetchJson('https://api.geoapify.com/v1/geocode/search?text='+encodeURIComponent(q)+'&limit=1&bias=proximity:19.5,48.7&apiKey='+GEOAPIFY_KEY); const f=(g.features||[])[0]; if(f&&f.geometry){ const c=f.geometry.coordinates; return {lat:c[1],lng:c[0]}; } }catch(e){}
+  }
+  try{ const d=await fetchJson('https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=1&lang=default&lat=48.7&lon=19.5'); const f=(d.features||[])[0]; if(f&&f.geometry){ const c=f.geometry.coordinates; return {lat:c[1],lng:c[0]}; } }catch(e){}
+  return null;
+}
+async function tripRouteKm(points){
+  if(points.length<2) return 0;
+  if(hasGeoKey()){
+    try{ const wp=points.map(p=>p.lat+','+p.lng).join('|'); const data=await fetchJson('https://api.geoapify.com/v1/routing?waypoints='+encodeURIComponent(wp)+'&mode=drive&apiKey='+GEOAPIFY_KEY, 9000); const f=data.features&&data.features[0]; if(f&&f.properties&&f.properties.distance) return f.properties.distance/1000; }catch(e){}
+  }
+  try{ const coordStr=points.map(p=>p.lng+','+p.lat).join(';'); const url='https://router.project-osrm.org/route/v1/driving/'+coordStr+'?overview=false'; const ctrl=new AbortController(); const tm=setTimeout(()=>ctrl.abort(),9000); const res=await fetch(url,{signal:ctrl.signal}); clearTimeout(tm); const data=await res.json(); if(data.routes&&data.routes[0]) return data.routes[0].distance/1000; }catch(e){}
+  let d=0; for(let i=0;i<points.length-1;i++) d+=haversine(points[i],points[i+1]); return d*1.3;
+}
+
+let tripStops=['',''];
+let tripFocusMonth='';
+function tripDriverRate(id){ const d=state.drivers.find(x=>x.id===id); return d?num(d.rate):0; }
+function readTripKm(){ return parseFloat(($('tKm').value||'').replace(',','.'))||0; }
+function dName2(id){ const d=state.drivers.find(x=>x.id===id); return d?d.name:'—'; }
+function updateTripPreview(){ const km=readTripKm(); const rate=tripDriverRate($('tDriver').value); const pay=km*rate;
+  $('tPreview').textContent = (km>0&&rate>0)?('Výplata: '+eur(pay)+'  ('+kmF(km)+' km × '+eur(rate)+'/km)')
+    : (km>0&&rate===0 && $('tDriver').value)?'Vodič nemá sadzbu (€/km) — doplň ju v karte vodiča' : '';
+}
+function syncTripStops(){ const inp=document.querySelectorAll('#tStops [data-tstop]'); if(inp.length) tripStops=[...inp].map(x=>x.value); }
+function renderTripStops(){
+  $('tStops').innerHTML=tripStops.map((s,i)=>`<div style="display:flex; gap:6px; margin-bottom:6px; align-items:center"><input class="in" data-tstop="${i}" value="${esc(s)}" placeholder="Mesto / adresa" style="flex:1; min-width:0">${tripStops.length>2?`<button class="row-del" data-tdel="${i}" title="Odstrániť">✕</button>`:''}</div>`).join('');
+  $('tStops').querySelectorAll('[data-tstop]').forEach(inp=>inp.addEventListener('input',()=>{ tripStops[+inp.dataset.tstop]=inp.value; }));
+  $('tStops').querySelectorAll('[data-tdel]').forEach(b=>b.addEventListener('click',()=>{ syncTripStops(); tripStops.splice(+b.dataset.tdel,1); if(tripStops.length<2) tripStops.push(''); renderTripStops(); }));
+}
+function tripFormReset(){ tripStops=['','']; renderTripStops(); $('tDate').value=todayISO(); $('tDriver').value=''; $('tRound').checked=true; $('tKm').value=''; $('tPreview').textContent=''; }
+
+$('tAddStop').addEventListener('click',()=>{ syncTripStops(); tripStops.push(''); renderTripStops(); });
+$('tKm').addEventListener('input', updateTripPreview);
+$('tDriver').addEventListener('change', updateTripPreview);
+$('tCalc').addEventListener('click', async ()=>{
+  syncTripStops();
+  const labels=tripStops.map(s=>s.trim()).filter(Boolean);
+  if(labels.length<2){ alert('Zadaj aspoň dve zastávky.'); return; }
+  const btn=$('tCalc'); const old=btn.textContent; btn.disabled=true; btn.textContent='Počítam…';
+  try{
+    const pts=[];
+    for(const q of labels){ const p=await tripGeocode(q); if(!p){ alert('Miesto sa nenašlo: '+q); btn.disabled=false; btn.textContent=old; return; } pts.push(p); }
+    if($('tRound').checked) pts.push(pts[0]);
+    const km=await tripRouteKm(pts);
+    $('tKm').value=String(Math.round(km)).replace('.',',');
+    updateTripPreview();
+  }catch(e){ alert('Výpočet zlyhal, skús znova alebo zadaj km ručne.'); }
+  btn.disabled=false; btn.textContent=old;
+});
+$('tSubmit').addEventListener('click', ()=>{
+  const driverId=$('tDriver').value; if(!driverId){ alert('Vyber vodiča.'); return; }
+  const km=readTripKm(); if(!(km>0)){ alert('Zadaj alebo vypočítaj kilometre.'); return; }
+  syncTripStops();
+  const labels=tripStops.map(s=>s.trim()).filter(Boolean);
+  const rate=tripDriverRate(driverId); const payout=km*rate;
+  const t={ id:uid(), date:$('tDate').value||todayISO(), driverId, stops:labels, round:$('tRound').checked, km, rate, payout, note:'', createdAt:Date.now(), createdBy:currentEmail() };
+  state.trips.unshift(t); saveTrip(t); tripFormReset(); renderTrips();
+});
+
+function renderTrips(){
+  if(!$('tripList')) return;
+  const cur=$('tDriver')?$('tDriver').value:'';
+  if($('tDriver')) $('tDriver').innerHTML='<option value="">— vyber vodiča —</option>'+state.drivers.map(d=>`<option value="${d.id}" ${d.id===cur?'selected':''}>${esc(d.name)}</option>`).join('');
+  const all=[...state.trips].filter(t=>t.date);
+  const mk=t=>(t.date||'').slice(0,7);
+  if(all.length===0){ $('tripList').innerHTML='<div class="empty">Zatiaľ žiadne jazdy. Pridaj prvú hore.</div>'; return; }
+  const months=[...new Set(all.map(mk))].filter(Boolean).sort().reverse();
+  if(!months.includes(tripFocusMonth)) tripFocusMonth=months[0];
+  const chips='<div class="filters" style="margin-bottom:14px">'+months.map(k=>`<button class="filter${k===tripFocusMonth?' active':''}" data-tmonth="${k}">${monthLabel(k)} <span style="opacity:.7">(${all.filter(t=>mk(t)===k).length})</span></button>`).join('')+'</div>';
+  const list=all.filter(t=>mk(t)===tripFocusMonth).sort((a,b)=>String(b.date).localeCompare(String(a.date))||(b.createdAt||0)-(a.createdAt||0));
+  const byDrv={}; list.forEach(t=>{ const k=t.driverId||'—'; if(!byDrv[k]) byDrv[k]={km:0,pay:0,n:0}; byDrv[k].km+=num(t.km); byDrv[k].pay+=num(t.payout); byDrv[k].n++; });
+  let tKmAll=0,tPayAll=0; Object.values(byDrv).forEach(x=>{ tKmAll+=x.km; tPayAll+=x.pay; });
+  const sumRows=Object.entries(byDrv).map(([id,x])=>`<div class="trip-sum-row"><span>${esc(dName2(id))} <span style="opacity:.55">· ${x.n} jázd</span></span><span>${kmF(x.km)} km</span><span class="trip-pay">${eur(x.pay)}</span></div>`).join('');
+  const summary=`<div class="card trip-summary"><div class="trip-sum-head">Výplaty za ${monthLabel(tripFocusMonth)}</div>${sumRows}<div class="trip-sum-row trip-sum-total"><span>Spolu</span><span>${kmF(tKmAll)} km</span><span class="trip-pay">${eur(tPayAll)}</span></div></div>`;
+  const cards=list.map(t=>{
+    const route=(t.stops||[]).map(esc).join(' → ')+(t.round?' → späť':'');
+    return `<div class="card"><div class="row-top"><div class="model" style="font-size:15px">${esc(dName2(t.driverId))}</div><div class="iconbtns"><button class="iconbtn" data-tripdel="${t.id}" title="Vymazať">🗑</button></div></div>
+      <div class="dates" style="margin-top:6px">📅 ${fmtDate(t.date)}</div>
+      <div class="route" style="margin-top:8px">📍 ${route||'—'}</div>
+      <div class="meta" style="margin-top:10px"><span class="tag">${kmF(t.km)} km</span><span class="tag price-tag">${eur(t.payout)}</span><span class="tag">${eur(t.rate)}/km</span></div>
+    </div>`;
+  }).join('');
+  $('tripList').innerHTML=chips+summary+cards;
+  $('tripList').querySelectorAll('[data-tmonth]').forEach(b=>b.addEventListener('click',()=>{ tripFocusMonth=b.dataset.tmonth; renderTrips(); }));
+  $('tripList').querySelectorAll('[data-tripdel]').forEach(b=>b.addEventListener('click',()=>{ if(!confirm('Vymazať túto jazdu?')) return; const id=b.dataset.tripdel; state.trips=state.trips.filter(x=>x.id!==id); deleteTripRow(id); renderTrips(); }));
+}
+if($('tDate') && !$('tDate').value) $('tDate').value=todayISO();
+renderTripStops();
 
 (async function init(){
   if(CLOUD){
