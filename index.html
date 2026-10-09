@@ -1739,6 +1739,7 @@ async function tripRouteKm(points){
 
 let tripStops=['',''];
 let tripFocusMonth='';
+let tripDriverFilter='all';
 function readTripKm(){ return parseFloat(($('tKm').value||'').replace(',','.'))||0; }
 function readTripRate(){ return parseFloat(($('tRate').value||'').replace(',','.'))||0; }
 function updateTripPreview(){ const km=readTripKm(); const rate=readTripRate(); const pay=km*rate;
@@ -1811,9 +1812,13 @@ $('tSubmit').addEventListener('click', ()=>{
 
 function renderTrips(){
   if(!$('tripList')) return;
-  const all=[...state.trips].filter(t=>t.startDate);
+  const dname=tripDriverFilter==='all'?null:tripDriverName(tripDriverFilter);
+  const allDrv=[...state.trips].filter(t=>t.startDate);
+  const dcount=n=>allDrv.filter(t=>tripNameOf(t)===n).length;
+  const drvChips='<div class="filters" style="margin-bottom:10px">'+`<button class="filter${tripDriverFilter==='all'?' active':''}" data-tdrv="all">Všetci <span style="opacity:.7">(${allDrv.length})</span></button>`+TRIP_DRIVERS.map(d=>`<button class="filter${tripDriverFilter===d.id?' active':''}" data-tdrv="${d.id}">${esc(d.name)} <span style="opacity:.7">(${dcount(d.name)})</span></button>`).join('')+'</div>';
+  const all=dname?allDrv.filter(t=>tripNameOf(t)===dname):allDrv;
   const mk=t=>(t.startDate||'').slice(0,7);
-  if(all.length===0){ $('tripList').innerHTML='<div class="empty">Zatiaľ žiadne jazdy. Pridaj prvú hore.</div>'; return; }
+  if(all.length===0){ $('tripList').innerHTML=(allDrv.length?drvChips:'')+'<div class="empty">'+(allDrv.length?'Tento vodič zatiaľ nemá žiadne jazdy.':'Zatiaľ žiadne jazdy. Pridaj prvú hore.')+'</div>'; $('tripList').querySelectorAll('[data-tdrv]').forEach(b=>b.addEventListener('click',()=>{ tripDriverFilter=b.dataset.tdrv; renderTrips(); })); return; }
   const months=[...new Set(all.map(mk))].filter(Boolean).sort().reverse();
   if(!months.includes(tripFocusMonth)) tripFocusMonth=months[0];
   const chips='<div class="filters" style="margin-bottom:14px">'+months.map(k=>`<button class="filter${k===tripFocusMonth?' active':''}" data-tmonth="${k}">${monthLabel(k)} <span style="opacity:.7">(${all.filter(t=>mk(t)===k).length})</span></button>`).join('')+'</div>';
@@ -1832,7 +1837,8 @@ function renderTrips(){
       ${t.note?`<div class="note">📝 ${esc(t.note)}</div>`:''}
     </div>`;
   }).join('');
-  $('tripList').innerHTML=chips+summary+cards;
+  $('tripList').innerHTML=drvChips+chips+summary+cards;
+  $('tripList').querySelectorAll('[data-tdrv]').forEach(b=>b.addEventListener('click',()=>{ tripDriverFilter=b.dataset.tdrv; renderTrips(); }));
   $('tripList').querySelectorAll('[data-tmonth]').forEach(b=>b.addEventListener('click',()=>{ tripFocusMonth=b.dataset.tmonth; renderTrips(); }));
   $('tripList').querySelectorAll('[data-tripedit]').forEach(b=>b.addEventListener('click',()=>startEditTrip(b.dataset.tripedit)));
   $('tripList').querySelectorAll('[data-tripdel]').forEach(b=>b.addEventListener('click',()=>{ if(!confirm('Vymazať túto jazdu?')) return; const id=b.dataset.tripdel; state.trips=state.trips.filter(x=>x.id!==id); deleteTripRow(id); if(editTrip===id) tripFormReset(); renderTrips(); }));
